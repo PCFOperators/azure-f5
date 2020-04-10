@@ -32,6 +32,43 @@
             },
             "type": "string"
         },
+        "instanceName": {
+            "defaultValue": "f5vm01",
+            "metadata": {
+                "description": "Name of the Virtual Machine."
+            },
+            "type": "string"
+        },
+        "numberOfExternalIps": {
+            "allowedValues": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+            ],
+            "defaultValue": 1,
+            "metadata": {
+                "description": "The number of public/private IP addresses you want to deploy for the application traffic (external) NIC on the BIG-IP VE to be used for virtual servers."
+            },
+            "type": "int"
+        },
         "instanceType": {
             "allowedValues": [
                 "Standard_A3",
@@ -39,21 +76,18 @@
                 "Standard_A5",
                 "Standard_A6",
                 "Standard_A7",
-                "Standard_D2",
                 "Standard_D3",
                 "Standard_D4",
                 "Standard_D11",
                 "Standard_D12",
                 "Standard_D13",
                 "Standard_D14",
-                "Standard_DS2",
                 "Standard_DS3",
                 "Standard_DS4",
                 "Standard_DS11",
                 "Standard_DS12",
                 "Standard_DS13",
                 "Standard_DS14",
-                "Standard_D2_v2",
                 "Standard_D3_v2",
                 "Standard_D4_v2",
                 "Standard_D5_v2",
@@ -62,7 +96,6 @@
                 "Standard_D13_v2",
                 "Standard_D14_v2",
                 "Standard_D15_v2",
-                "Standard_DS2_v2",
                 "Standard_DS3_v2",
                 "Standard_DS4_v2",
                 "Standard_DS5_v2",
@@ -73,20 +106,17 @@
                 "Standard_DS15_v2",
                 "Standard_F4",
                 "Standard_F8",
-                "Standard_F2S",
                 "Standard_F4S",
                 "Standard_F8S",
                 "Standard_F16S",
-                "Standard_G2",
                 "Standard_G3",
                 "Standard_G4",
                 "Standard_G5",
-                "Standard_GS2",
                 "Standard_GS3",
                 "Standard_GS4",
                 "Standard_GS5"
             ],
-            "defaultValue": "Standard_DS2_v2",
+            "defaultValue": "Standard_DS3_v2",
             "metadata": {
                 "description": "Instance size of the Virtual Machine."
             },
@@ -94,7 +124,7 @@
         },
         "imageName": {
             "allowedValues": [
-                "AllOneBootLocation",
+                "LTMTwoBootLocations",
                 "AllTwoBootLocations"
             ],
             "defaultValue": "AllTwoBootLocations",
@@ -154,7 +184,7 @@
             "type": "string"
         },
         "bigIpModules": {
-            "defaultValue": "asm:nominal",
+            "defaultValue": "ltm:nominal",
             "metadata": {
                 "description": "Comma separated list of modules and levels to provision, for example, ltm:nominal,asm:nominal"
             },
@@ -175,6 +205,53 @@
         "mgmtSubnetName": {
             "metadata": {
                 "description": "Name of the existing mgmt subnet - with external access to the Internet. **Important**: The subnet you provide for the mgmt NIC **must** be unique."
+            },
+            "type": "string"
+        },
+        "mgmtIpAddressRangeStart": {
+            "metadata": {
+                "description": "The static private IP address you want to assign to the management self IP of the first BIG-IP. The next contiguous address will be used for the second BIG-IP device."
+            },
+            "type": "string"
+        },
+        "externalSubnetName": {
+            "metadata": {
+                "description": "Name of the existing external subnet - with external access to Internet. **Important**: The subnet you provide for the external NIC **must** be unique."
+            },
+            "type": "string"
+        },
+        "externalIpAddressRangeStart": {
+            "metadata": {
+                "description": "The static private IP address (secondary) you would like to assign to the first shared Azure public IP. An additional private IP address will be assigned for each public IP address you specified in numberOfExternalIps.  For example, inputting 10.100.1.50 here and choosing 2 in numberOfExternalIps would result in 10.100.1.50 and 10.100.1.51 being configured as static private IP addresses for external virtual servers."
+            },
+            "type": "string"
+        },
+        "externalIpSelfAddressRangeStart": {
+            "metadata": {
+                "description": "The static private IP address you want to assign to the external self IP (primary) of the first BIG-IP VE. The next contiguous address will be used for the second BIG-IP device."
+            },
+            "type": "string"
+        },
+        "internalSubnetName": {
+            "metadata": {
+                "description": "Name of the existing internal subnet. **Important**: The subnet you provide for the internal NIC **must** be unique."
+            },
+            "type": "string"
+        },
+        "internalIpAddressRangeStart": {
+            "metadata": {
+                "description": "The static private IP address you would like to assign to the internal self IP of the first BIG-IP VE. The next contiguous address will be used for the second BIG-IP device."
+            },
+            "type": "string"
+        },
+        "provisionPublicIP": {
+            "allowedValues": [
+                "Yes",
+                "No"
+            ],
+            "defaultValue": "Yes",
+            "metadata": {
+                "description": "Provision Public IP addresses for BIG-IP Network Interfaces. By default it is set to provision public IPs"
             },
             "type": "string"
         },
@@ -237,188 +314,32 @@
             },
             "type": "string"
         },
-        "vmScaleSetMinCount": {
+        "numberOfAdditionalNics": {
             "allowedValues": [
+                0,
                 1,
                 2,
                 3,
                 4,
-                5,
-                6
+                5
             ],
-            "defaultValue": 2,
+            "defaultValue": 0,
             "metadata": {
-                "description": "The minimum (and default) number of BIG-IP VEs that will be deployed into the VM Scale Set."
+                "description": "By default this solution deploys the BIG-IP(s) in a 3 NIC configuration, however additional NICs can be added to the BIG-IP(s) using this parameter.  **Note**: The default value is 0, additional NICs will only be created if 1 or higher is specified."
             },
             "type": "int"
         },
-        "vmScaleSetMaxCount": {
-            "allowedValues": [
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8
-            ],
-            "defaultValue": 4,
-            "metadata": {
-                "description": "The maximum number of BIG-IP VEs that can be deployed into the VM Scale Set."
-            },
-            "type": "int"
-        },
-        "appInsights": {
-            "defaultValue": "CREATE_NEW",
-            "metadata": {
-                "description": "Enter the name of your existing Application Insights environment that will be used to receive custom BIG-IP metrics you can use for Scale Set rules and device visibility. If the Application Insights environment is in a different Resource Group than this deployment, specify it as **app_insights_name;app_insights_rg**).  If you do not have an Application Insights environment, leave the default (CREATE_NEW) and the template will create one. Note: By default, the new Application Insights environment will be created in **East US**, if necessary you can specify a different region as **CREATE_NEW:app_insights_region**)."
-            },
-            "type": "string"
-        },
-        "scaleOutCpuThreshold": {
-            "defaultValue": 80,
-            "maxValue": 100,
-            "metadata": {
-                "description": "The percentage of CPU utilization that should trigger a scale out event."
-            },
-            "minValue": 1,
-            "type": "int"
-        },
-        "scaleInCpuThreshold": {
-            "defaultValue": 20,
-            "maxValue": 100,
-            "metadata": {
-                "description": "The percentage of CPU utilization that should trigger a scale in event."
-            },
-            "minValue": 1,
-            "type": "int"
-        },
-        "scaleOutThroughputThreshold": {
-            "defaultValue": 20000000,
-            "metadata": {
-                "description": "The amount of throughput (**bytes**) that should trigger a scale out event. Note: The default value is equal to 20 MB"
-            },
-            "type": "int"
-        },
-        "scaleInThroughputThreshold": {
-            "defaultValue": 10000000,
-            "metadata": {
-                "description": "The amount of throughput (**bytes**) that should trigger a scale in event. Note: The default value is equal to 10 MB"
-            },
-            "type": "int"
-        },
-        "scaleOutTimeWindow": {
-            "defaultValue": 10,
-            "maxValue": 60,
-            "metadata": {
-                "description": "The time window required to trigger a scale out event. This is used to determine the amount of time needed for a threshold to be breached, as well as to prevent excessive scaling events (flapping). **Note:** Allowed values are 1-60 (minutes)."
-            },
-            "minValue": 1,
-            "type": "int"
-        },
-        "scaleInTimeWindow": {
-            "defaultValue": 10,
-            "maxValue": 60,
-            "metadata": {
-                "description": "The time window required to trigger a scale in event. This is used to determine the amount of time needed for a threshold to be breached, as well as to prevent excessive scaling events (flapping). **Note:** Allowed values are 1-60 (minutes)."
-            },
-            "minValue": 1,
-            "type": "int"
-        },
-        "notificationEmail": {
+        "additionalNicLocation": {
             "defaultValue": "OPTIONAL",
             "metadata": {
-                "description": "If you want email notifications on scale events, specify an email address, otherwise leave the parameter as **OPTIONAL**. Note: You can specify multiple emails by separating them with a semi-colon, such as *email@domain.com;email2@domain.com*."
+                "description": "This parameter specifies where the additional NICs go, use the default value of **OPTIONAL** if **0** was selected for the parameter **numberOfAdditionalNics**.  Otherwise this value must be a semi-colon delimited string of subnets, equal to the number of additional NICs being deployed.  For example, for 2 additional NICs you would use: **subnet01;subnet02**. **Note**: Ensure there are no spaces and the correct number of subnets are provided based on the value selected in **numberOfAdditionalNics**. **Important**: The subnet you provide for each additional NIC **must** be unique."
             },
             "type": "string"
         },
-        "provisionPublicIP": {
-            "allowedValues": [
-                "No",
-                "Yes"
-            ],
-            "defaultValue": "Yes",
-            "metadata": {
-                "description": "Enabling management public IP(s) allows for direct public access to each BIG-IP VE that is created."
-            },
-            "type": "string"
-        },
-        "applicationProtocols": {
-            "allowedValues": [
-                "http",
-                "https",
-                "http-https",
-                "https-offload"
-            ],
-            "defaultValue": "http-https",
-            "metadata": {
-                "description": "The protocol(s) used by your application."
-            },
-            "type": "string"
-        },
-        "applicationAddress": {
-            "metadata": {
-                "description": "The public IP address or DNS FQDN of the application that this WAF will protect."
-            },
-            "type": "string"
-        },
-        "applicationPort": {
-            "defaultValue": "80",
-            "metadata": {
-                "description": "If you are deploying an HTTP application, the port on which your service listens for unencrypted traffic. This field is not required when deploying HTTPS only."
-            },
-            "type": "string"
-        },
-        "applicationSecurePort": {
-            "defaultValue": "443",
-            "metadata": {
-                "description": "If you are deploying an HTTPS application, the port on which your service listens for encrypted traffic. This field is not required when deploying HTTP only."
-            },
-            "type": "string"
-        },
-        "sslCert": {
+        "managedRoutes": {
             "defaultValue": "NOT_SPECIFIED",
             "metadata": {
-                "description": "The SSL certificate .pfx file corresponding to the virtual server."
-            },
-            "type": "string"
-        },
-        "sslPswd": {
-            "defaultValue": "NOT_SPECIFIED",
-            "metadata": {
-                "description": "The SSL certificate .pfx password corresponding to the certificate you entered."
-            },
-            "type": "securestring"
-        },
-        "applicationType": {
-            "allowedValues": [
-                "Windows",
-                "Linux"
-            ],
-            "defaultValue": "Linux",
-            "metadata": {
-                "description": "Is your application running on a Linux OS or a Windows OS?"
-            },
-            "type": "string"
-        },
-        "blockingLevel": {
-            "allowedValues": [
-                "low",
-                "medium",
-                "high",
-                "off",
-                "custom"
-            ],
-            "defaultValue": "medium",
-            "metadata": {
-                "description": "Select how aggressive you want the blocking level of this WAF.  Remember that the more aggressive the blocking level, the more potential there is for false-positives the WAF might detect. Select **Custom** to specify your own security policy."
-            },
-            "type": "string"
-        },
-        "customPolicy": {
-            "defaultValue": "NOT_SPECIFIED",
-            "metadata": {
-                "description": "Specify the publicly available URL of a custom ASM security policy in XML format. This policy will be applied in place of the standard High/Medium/Low policy."
+                "description": "A comma-delimited list of route destinations to be managed by this cluster.  For example: 0.0.0.0/0,192.168.1.0/24. Specifying a comma-delimited list of managedRoutes and creating f5_ha and f5_tg tags on the Azure Route Table defines the UDRs to be updated. To have the UDRs managed by BIG-IP, you will need to create an Azure tag with key **f5_ha** and value **self_2nic**, or the name of a different self IP address configured on the BIG-IP VE. All UDRs with destinations matching managedRoutes and configured in Azure Route Tables tagged with 'f5_ha:' will use the corresponding self IP address on the active BIG-IP VE as the next hop for those routes. You must also associate the route table with a traffic group by creating an Azure tag with key **f5_tg** and value **traffic-group-1**, or the name of a different traffic group configured on the BIG-IP VE."
             },
             "type": "string"
         },
@@ -442,6 +363,88 @@
         }
     },
     "variables": {
+        "addtlNicFillerArray": [
+            "filler01",
+            "filler02",
+            "filler03",
+            "filler04",
+            "filler05"
+        ],
+        "addtlNicRefSplit": "[concat(split(parameters('additionalNicLocation'), ';'), variables('addtlNicFillerArray'))]",
+        "netCmd01": "[concat(' --vlan name:', variables('addtlNicRefSplit')[0], ',nic:1.3')]",
+        "netCmd02": "[concat(variables('netCmd01'), ' --vlan name:', variables('addtlNicRefSplit')[1], ',nic:1.4')]",
+        "netCmd03": "[concat(variables('netCmd02'), ' --vlan name:', variables('addtlNicRefSplit')[2], ',nic:1.5')]",
+        "netCmd04": "[concat(variables('netCmd03'), ' --vlan name:', variables('addtlNicRefSplit')[3], ',nic:1.6')]",
+        "netCmd05": "[concat(variables('netCmd04'), ' --vlan name:', variables('addtlNicRefSplit')[4], ',nic:1.7')]",
+        "netCmd": "[variables(concat('netCmd0', parameters('numberOfAdditionalNics')))]",
+        "selfNicConfigArray": {
+            "0": [
+                {
+                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('mgmtNicName'), '0'))]",
+                    "properties": {
+                        "primary": true
+                    }
+                },
+                {
+                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('extNicName'), '0'))]",
+                    "properties": {
+                        "primary": false
+                    }
+                },
+                {
+                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('intNicName'), '0'))]",
+                    "properties": {
+                        "primary": false
+                    }
+                }
+            ],
+            "1": [
+                {
+                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('mgmtNicName'), '1'))]",
+                    "properties": {
+                        "primary": true
+                    }
+                },
+                {
+                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('extNicName'), '1'))]",
+                    "properties": {
+                        "primary": false
+                    }
+                },
+                {
+                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('intNicName'), '1'))]",
+                    "properties": {
+                        "primary": false
+                    }
+                }
+            ]
+        },
+        "addtlNicConfigArray": {
+            "copy": [
+                {
+                    "count": 5,
+                    "input": {
+                        "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(toLower(parameters('dnsLabel')), '-addtlnic', copyIndex('values0', 1), '0'))]",
+                        "properties": {
+                            "primary": false
+                        }
+                    },
+                    "name": "values0"
+                },
+                {
+                    "count": 5,
+                    "input": {
+                        "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(toLower(parameters('dnsLabel')), '-addtlnic', copyIndex('values1', 1), '1'))]",
+                        "properties": {
+                            "primary": false
+                        }
+                    },
+                    "name": "values1"
+                }
+            ]
+        },
+        "netCmd00": "[concat('')]",
+        "addtlNicName": "[concat(variables('dnsLabel'), '-addtlnic')]",
         "bigIpNicPortMap": {
             "1": {
                 "Port": "[parameters('bigIpVersion')]"
@@ -546,7 +549,7 @@
         "f5AS3Build": "f5-appsvcs-3.5.1-5.noarch.rpm",
         "f5AS3Tag": "v3.6.0",
         "verifyHash": "[concat(variables('singleQuote'), 'cli script /Common/verifyHash {\nproc script::run {} {\n        if {[catch {\n            set hashes(f5-cloud-libs.tar.gz) 169823bbcac9d7b87b2b59f30b899aa89545ea43901e66bfe03c40b32a90c0b20eaeac78e368c1c597af46a0769dc764ac5b484da6ae2674294e1be90990fd81\n            set hashes(f5-cloud-libs-aws.tar.gz) 076c969cbfff12efacce0879820262b7787c98645f1105667cc4927d4acfe2466ed64c777b6d35957f6df7ae266937dde42fef4c8b1f870020a366f7f910ffb5\n            set hashes(f5-cloud-libs-azure.tar.gz) 9037203b1af31288ba6993204a2abf3bd660f62e7dfb2d5825909dd69133ce5b4f5c725afabd7d2acaa693669c878daa04a6375314d985ba07c8a36dccc61c5a\n            set hashes(f5-cloud-libs-gce.tar.gz) 1677835e69967fd9882ead03cbdd24b426627133b8db9e41f6de5a26fef99c2d7b695978ac189f00f61c0737e6dbb638d42dea43a867ef4c01d9507d0ee1fb2f\n            set hashes(f5-cloud-libs-openstack.tar.gz) 5c83fe6a93a6fceb5a2e8437b5ed8cc9faf4c1621bfc9e6a0779f6c2137b45eab8ae0e7ed745c8cf821b9371245ca29749ca0b7e5663949d77496b8728f4b0f9\n            set hashes(f5-cloud-libs-consul.tar.gz) a32aab397073df92cbbba5067e5823e9b5fafca862a258b60b6b40aa0975c3989d1e110f706177b2ffbe4dde65305a260a5856594ce7ad4ef0c47b694ae4a513\n            set hashes(asm-policy-linux.tar.gz) 63b5c2a51ca09c43bd89af3773bbab87c71a6e7f6ad9410b229b4e0a1c483d46f1a9fff39d9944041b02ee9260724027414de592e99f4c2475415323e18a72e0\n            set hashes(f5.http.v1.2.0rc4.tmpl) 47c19a83ebfc7bd1e9e9c35f3424945ef8694aa437eedd17b6a387788d4db1396fefe445199b497064d76967b0d50238154190ca0bd73941298fc257df4dc034\n            set hashes(f5.http.v1.2.0rc6.tmpl) 811b14bffaab5ed0365f0106bb5ce5e4ec22385655ea3ac04de2a39bd9944f51e3714619dae7ca43662c956b5212228858f0592672a2579d4a87769186e2cbfe\n            set hashes(f5.http.v1.2.0rc7.tmpl) 21f413342e9a7a281a0f0e1301e745aa86af21a697d2e6fdc21dd279734936631e92f34bf1c2d2504c201f56ccd75c5c13baa2fe7653213689ec3c9e27dff77d\n            set hashes(f5.aws_advanced_ha.v1.3.0rc1.tmpl) 9e55149c010c1d395abdae3c3d2cb83ec13d31ed39424695e88680cf3ed5a013d626b326711d3d40ef2df46b72d414b4cb8e4f445ea0738dcbd25c4c843ac39d\n            set hashes(f5.aws_advanced_ha.v1.4.0rc1.tmpl) de068455257412a949f1eadccaee8506347e04fd69bfb645001b76f200127668e4a06be2bbb94e10fefc215cfc3665b07945e6d733cbe1a4fa1b88e881590396\n            set hashes(f5.aws_advanced_ha.v1.4.0rc2.tmpl) 6ab0bffc426df7d31913f9a474b1a07860435e366b07d77b32064acfb2952c1f207beaed77013a15e44d80d74f3253e7cf9fbbe12a90ec7128de6facd097d68f\n            set hashes(f5.aws_advanced_ha.v1.4.0rc3.tmpl) 2f2339b4bc3a23c9cfd42aae2a6de39ba0658366f25985de2ea53410a745f0f18eedc491b20f4a8dba8db48970096e2efdca7b8efffa1a83a78e5aadf218b134\n            set hashes(f5.aws_advanced_ha.v1.4.0rc4.tmpl) 2418ac8b1f1884c5c096cbac6a94d4059aaaf05927a6a4508fd1f25b8cc6077498839fbdda8176d2cf2d274a27e6a1dae2a1e3a0a9991bc65fc74fc0d02ce963\n            set hashes(f5.aws_advanced_ha.v1.4.0rc5.tmpl) 5e582187ae1a6323e095d41eddd41151d6bd38eb83c634410d4527a3d0e246a8fc62685ab0849de2ade62b0275f51264d2deaccbc16b773417f847a4a1ea9bc4\n            set hashes(asm-policy.tar.gz) 2d39ec60d006d05d8a1567a1d8aae722419e8b062ad77d6d9a31652971e5e67bc4043d81671ba2a8b12dd229ea46d205144f75374ed4cae58cefa8f9ab6533e6\n            set hashes(deploy_waf.sh) 1a3a3c6274ab08a7dc2cb73aedc8d2b2a23cd9e0eb06a2e1534b3632f250f1d897056f219d5b35d3eed1207026e89989f754840fd92969c515ae4d829214fb74\n            set hashes(f5.policy_creator.tmpl) 06539e08d115efafe55aa507ecb4e443e83bdb1f5825a9514954ef6ca56d240ed00c7b5d67bd8f67b815ee9dd46451984701d058c89dae2434c89715d375a620\n            set hashes(f5.service_discovery.tmpl) 4811a95372d1dbdbb4f62f8bcc48d4bc919fa492cda012c81e3a2fe63d7966cc36ba8677ed049a814a930473234f300d3f8bced2b0db63176d52ac99640ce81b\n            set hashes(f5.cloud_logger.v1.0.0.tmpl) 64a0ed3b5e32a037ba4e71d460385fe8b5e1aecc27dc0e8514b511863952e419a89f4a2a43326abb543bba9bc34376afa114ceda950d2c3bd08dab735ff5ad20\n            set hashes(f5-appsvcs-3.5.1-5.noarch.rpm) ba71c6e1c52d0c7077cdb25a58709b8fb7c37b34418a8338bbf67668339676d208c1a4fef4e5470c152aac84020b4ccb8074ce387de24be339711256c0fa78c8\n\n            set file_path [lindex $tmsh::argv 1]\n            set file_name [file tail $file_path]\n\n            if {![info exists hashes($file_name)]} {\n                tmsh::log err \"No hash found for $file_name\"\n                exit 1\n            }\n\n            set expected_hash $hashes($file_name)\n            set computed_hash [lindex [exec /usr/bin/openssl dgst -r -sha512 $file_path] 0]\n            if { $expected_hash eq $computed_hash } {\n                exit 0\n            }\n            tmsh::log err \"Hash does not match for $file_path\"\n            exit 1\n        }]} {\n            tmsh::log err {Unexpected error in verifyHash}\n            exit 1\n        }\n    }\n    script-signature srPhlMQ88/1ZEFP7Gy4ygpE9uiFMDRUYSpLsS+byPB/sVou6t9HPB+iAq4NSb0JZNIZn7JyCjrgTZrlcN2MRKInPOXpORplRuSOt4K8IlvhP9a+Mny8tvnsTgvTNNOGGQ3ihYeIJXQ+Zz5rYr5y6mqGYFm+Zs//vUoR2St9cHw8D1iphouiLycBDRvgq5h/lUYbgRiTrEE9u2zs1UH0rPbpYC42kEYgRhDtR82k2AxCtH5wakVegy74sAwJ8wY43+RHcgY/pF+MIuVIHd0FuKzSD1vtaQEkc7gAvXJ++5WjoL3TxmkeEVa/UP51RUzsqU+EzSnCAsX1nY8kd58msYA==\n    signing-key /Common/f5-irule\n}', variables('singleQuote'))]",
-        "installCloudLibs": "[concat(variables('singleQuote'), '#!/bin/bash\necho about to execute\nchecks=0\nwhile [ $checks -lt 120 ]; do echo checking mcpd\n/usr/bin/tmsh -a show sys mcp-state field-fmt | grep -q running\nif [ $? == 0 ]; then\necho mcpd ready\nbreak\nfi\necho mcpd not ready yet\nlet checks=checks+1\nsleep 1\ndone\necho loading verifyHash script\n/usr/bin/tmsh load sys config merge file /config/verifyHash\nif [ $? != 0 ]; then\necho cannot validate signature of /config/verifyHash\nexit 1\nfi\necho loaded verifyHash\n\nconfig_loc=\"/config/cloud/\"\nhashed_file_list=\"${config_loc}f5-cloud-libs.tar.gz f5-appsvcs-3.5.1-5.noarch.rpm f5.service_discovery.tmpl f5.cloud_logger.v1.0.0.tmpl ${config_loc}f5-cloud-libs-azure.tar.gz asm-policy.tar.gz\"\nfor file in $hashed_file_list; do\necho \"verifying $file\"\n/usr/bin/tmsh run cli script verifyHash $file\nif [ $? != 0 ]; then\necho \"$file is not valid\"\nexit 1\nfi\necho \"verified $file\"\ndone\necho \"expanding $hashed_file_list\"\ntar xfz /config/cloud/f5-cloud-libs.tar.gz --warning=no-unknown-keyword -C /config/cloud/azure/node_modules/@f5devcentral\ntar xfz /config/cloud/f5-cloud-libs-azure.tar.gz --warning=no-unknown-keyword -C /config/cloud/azure/node_modules/@f5devcentral\ntouch /config/cloud/cloudLibsReady', variables('singleQuote'))]",
+        "installCloudLibs": "[concat(variables('singleQuote'), '#!/bin/bash\necho about to execute\nchecks=0\nwhile [ $checks -lt 120 ]; do echo checking mcpd\n/usr/bin/tmsh -a show sys mcp-state field-fmt | grep -q running\nif [ $? == 0 ]; then\necho mcpd ready\nbreak\nfi\necho mcpd not ready yet\nlet checks=checks+1\nsleep 1\ndone\necho loading verifyHash script\n/usr/bin/tmsh load sys config merge file /config/verifyHash\nif [ $? != 0 ]; then\necho cannot validate signature of /config/verifyHash\nexit 1\nfi\necho loaded verifyHash\n\nconfig_loc=\"/config/cloud/\"\nhashed_file_list=\"${config_loc}f5-cloud-libs.tar.gz f5-appsvcs-3.5.1-5.noarch.rpm f5.service_discovery.tmpl f5.cloud_logger.v1.0.0.tmpl ${config_loc}f5-cloud-libs-azure.tar.gz\"\nfor file in $hashed_file_list; do\necho \"verifying $file\"\n/usr/bin/tmsh run cli script verifyHash $file\nif [ $? != 0 ]; then\necho \"$file is not valid\"\nexit 1\nfi\necho \"verified $file\"\ndone\necho \"expanding $hashed_file_list\"\ntar xfz /config/cloud/f5-cloud-libs.tar.gz --warning=no-unknown-keyword -C /config/cloud/azure/node_modules/@f5devcentral\ntar xfz /config/cloud/f5-cloud-libs-azure.tar.gz --warning=no-unknown-keyword -C /config/cloud/azure/node_modules/@f5devcentral\ntouch /config/cloud/cloudLibsReady', variables('singleQuote'))]",
         "dnsLabel": "[toLower(parameters('dnsLabel'))]",
         "imageNameToLower": "[toLower(parameters('imageName'))]",
         "skuToUse": "[concat('f5-', variables('imageNameSub'),'-byol')]",
@@ -562,19 +565,64 @@
             "sku": "[variables('skuToUse')]",
             "version": "[parameters('bigIpVersion')]"
         },
-        "bigIpNicPortValue": "[variables('bigIpNicPortMap')['1'].Port]",
-        "bigIpMgmtPort": 8443,
+        "bigIpNicPortValue": "[variables('bigIpNicPortMap')['3'].Port]",
+        "bigIpMgmtPort": "[variables('bigIpVersionPortMap')[variables('bigIpNicPortValue')].Port]",
+        "instanceName": "[toLower(parameters('instanceName'))]",
+        "failoverCmdArray": {
+            "14.1.003000": "tmsh modify sys db failover.selinuxallowscripts value enable",
+            "13.1.100000": "tmsh modify sys db failover.selinuxallowscripts value enable",
+            "latest": "tmsh modify sys db failover.selinuxallowscripts value enable"
+        },
         "virtualNetworkName": "[parameters('vnetName')]",
         "mgmtSubnetName": "[parameters('mgmtSubnetName')]",
         "vnetId": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
-        "commandArgs": "[concat('-o ', parameters('declarationUrl'), ' -m ', parameters('applicationProtocols'), ' -n ', parameters('applicationAddress'), ' -j ', parameters('applicationPort'), ' -k ', parameters('applicationSecurePort'), ' -h ', parameters('applicationPort'), ' -s ', parameters('applicationSecurePort'), ' -t ', toLower(parameters('applicationType')), ' -l ', toLower(parameters('blockingLevel')), ' -a ', parameters('customPolicy'), ' -c ', parameters('sslCert'), ' -r ', parameters('sslPswd'), ' -u svc_user')]",
-        "appScript": "IyEvYmluL2Jhc2gKZnVuY3Rpb24gcGFzc3dkKCkgewogIGVjaG8gfCBmNS1yZXN0LW5vZGUgL2NvbmZpZy9jbG91ZC9henVyZS9ub2RlX21vZHVsZXMvQGY1ZGV2Y2VudHJhbC9mNS1jbG91ZC1saWJzL3NjcmlwdHMvZGVjcnlwdERhdGFGcm9tRmlsZS5qcyAtLWRhdGEtZmlsZSAvY29uZmlnL2Nsb3VkLy5wYXNzd2QgfCBhd2sgJ3twcmludCAkMX0nCn0KCndoaWxlIGdldG9wdHMgbTpkOm46ajprOmg6czp0Omw6YTpjOnI6bzp1OiBvcHRpb24KZG8gY2FzZSAiJG9wdGlvbiIgIGluCiAgICAgICAgbykgZGVjbGFyYXRpb25Vcmw9JE9QVEFSRzs7CiAgICAgICAgbSkgbW9kZT0kT1BUQVJHOzsKICAgICAgICBuKSBwb29sX21lbWJlcj0kT1BUQVJHOzsKICAgICAgICBqKSB2c19odHRwX3BvcnQ9JE9QVEFSRzs7CiAgICAgICAgaykgdnNfaHR0cHNfcG9ydD0kT1BUQVJHOzsKICAgICAgICBoKSBwb29sX2h0dHBfcG9ydD0kT1BUQVJHOzsKICAgICAgICBzKSBwb29sX2h0dHBzX3BvcnQ9JE9QVEFSRzs7CiAgICAgICAgdCkgdHlwZT0kT1BUQVJHOzsKICAgICAgICBsKSBsZXZlbD0kT1BUQVJHOzsKICAgICAgICBhKSBwb2xpY3k9JE9QVEFSRzs7CiAgICAgICAgYykgc3NsX2NlcnQ9JE9QVEFSRzs7CiAgICAgICAgcikgc3NsX3Bhc3N3ZD0kT1BUQVJHOzsKICAgICAgICB1KSB1c2VyPSRPUFRBUkc7OwogICAgZXNhYwpkb25lCgpkZXBsb3llZD0ibm8iCmZpbGVfbG9jPSIvY29uZmlnL2Nsb3VkL2N1c3RvbV9jb25maWciCmRmbF9tZ210X3BvcnQ9YHRtc2ggbGlzdCBzeXMgaHR0cGQgc3NsLXBvcnQgfCBncmVwIHNzbC1wb3J0IHwgc2VkICdzL3NzbC1wb3J0IC8vO3MvIC8vZydgCnVybF9yZWdleD0iKGh0dHA6XC9cL3xodHRwczpcL1wvKT9bYS16MC05XSsoW1wtXC5dezF9W2EtejAtOV0rKSpcLlthLXpdezIsNX0oOlswLTldezEsNX0pPyhcLy4qKT8kIgoKaWYgW1sgJGRlY2xhcmF0aW9uVXJsID1+ICR1cmxfcmVnZXggXV07IHRoZW4KICAgIHJlc3BvbnNlX2NvZGU9JCgvdXNyL2Jpbi9jdXJsIC1zayAtdyAiJXtodHRwX2NvZGV9IiAkZGVjbGFyYXRpb25VcmwgLW8gJGZpbGVfbG9jKQogICAgaWYgW1sgJHJlc3BvbnNlX2NvZGUgPT0gMjAwIF1dOyB0aGVuCiAgICAgICAgIGVjaG8gIkN1c3RvbSBjb25maWcgZG93bmxvYWQgY29tcGxldGU7IGNoZWNraW5nIGZvciB2YWxpZCBKU09OLiIKICAgICAgICAgY2F0ICRmaWxlX2xvYyB8IGpxIC5jbGFzcwogICAgICAgICBpZiBbWyAkPyA9PSAwIF1dOyB0aGVuCiAgICAgICAgICAgICByZXNwb25zZV9jb2RlPSQoL3Vzci9iaW4vY3VybCAtc2t2dnUgJHVzZXI6JChwYXNzd2QpIC13ICIle2h0dHBfY29kZX0iIC1YIFBPU1QgLUggIkNvbnRlbnQtVHlwZTogYXBwbGljYXRpb24vanNvbiIgaHR0cHM6Ly9sb2NhbGhvc3Q6JGRmbF9tZ210X3BvcnQvbWdtdC9zaGFyZWQvYXBwc3Zjcy9kZWNsYXJlIC1kIEAkZmlsZV9sb2MgLW8gL2Rldi9udWxsKQoKICAgICAgICAgICAgIGlmIFtbICRyZXNwb25zZV9jb2RlID09IDIwMCB8fCAkcmVzcG9uc2VfY29kZSA9PSA1MDIgXV07IHRoZW4KICAgICAgICAgICAgICAgICAgZWNobyAiRGVwbG95bWVudCBvZiBhcHBsaWNhdGlvbiBzdWNjZWVkZWQuIgogICAgICAgICAgICAgICAgICBkZXBsb3llZD0ieWVzIgogICAgICAgICAgICAgZWxzZQogICAgICAgICAgICAgICAgIGVjaG8gIkZhaWxlZCB0byBkZXBsb3kgYXBwbGljYXRpb247IGNvbnRpbnVpbmcgd2l0aCByZXNwb25zZSBjb2RlICciJHJlc3BvbnNlX2NvZGUiJyIKICAgICAgICAgICAgIGZpCiAgICAgICAgIGVsc2UKICAgICAgICAgICAgIGVjaG8gIkN1c3RvbSBjb25maWcgd2FzIG5vdCB2YWxpZCBKU09OLCBjb250aW51aW5nIgogICAgICAgICBmaQogICAgZWxzZQogICAgICAgIGVjaG8gIkZhaWxlZCB0byBkb3dubG9hZCBjdXN0b20gY29uZmlnOyBjb250aW51aW5nIHdpdGggcmVzcG9uc2UgY29kZSAnIiRyZXNwb25zZV9jb2RlIiciCiAgICBmaQplbHNlCiAgICAgZWNobyAiQ3VzdG9tIGNvbmZpZyB3YXMgbm90IGEgVVJMLCBjb250aW51aW5nLiIKZmkKCmlmIFtbICRkZXBsb3llZCA9PSAibm8iICYmICRkZWNsYXJhdGlvblVybCA9PSAiTk9UX1NQRUNJRklFRCIgXV07IHRoZW4KICAgIGlwX3JlZ2V4PSdeWzAtOV17MSwzfVwuWzAtOV17MSwzfVwuWzAtOV17MSwzfVwuWzAtOV17MSwzfSQnCiAgICBkZmxfbWdtdF9wb3J0PWB0bXNoIGxpc3Qgc3lzIGh0dHBkIHNzbC1wb3J0IHwgZ3JlcCBzc2wtcG9ydCB8IHNlZCAncy9zc2wtcG9ydCAvLztzLyAvL2cnYAogICAgbW9kZT1gc2VkICJzLy0vXy9nIiA8PDwiJG1vZGUiYAogICAgcGF5bG9hZD0neyJjbGFzcyI6IkFEQyIsInNjaGVtYVZlcnNpb24iOiIzLjAuMCIsImxhYmVsIjoiYXV0b3NjYWxlX3dhZiIsImlkIjoiQVVUT1NDQUxFX1dBRiIsInJlbWFyayI6IkF1dG9zY2FsZSBXQUYiLCJ3YWYiOnsiY2xhc3MiOiJUZW5hbnQiLCJTaGFyZWQiOnsiY2xhc3MiOiJBcHBsaWNhdGlvbiIsInRlbXBsYXRlIjoic2hhcmVkIiwic2VydmljZUFkZHJlc3MiOnsiY2xhc3MiOiJTZXJ2aWNlX0FkZHJlc3MiLCJ2aXJ0dWFsQWRkcmVzcyI6IjAuMC4wLjAifSwicG9saWN5V0FGIjp7ImNsYXNzIjoiV0FGX1BvbGljeSIsImZpbGUiOiIvdG1wL2FzMzAtbGludXgtbWVkaXVtLnhtbCJ9fSwiaHR0cCI6eyJjbGFzcyI6IkFwcGxpY2F0aW9uIiwidGVtcGxhdGUiOiJodHRwIiwicG9vbCI6eyJjbGFzcyI6IlBvb2wiLCJtb25pdG9ycyI6WyJodHRwIl0sIm1lbWJlcnMiOlt7ImFkZHJlc3NEaXNjb3ZlcnkiOiJmcWRuIiwiYXV0b1BvcHVsYXRlIjp0cnVlLCJzZXJ2aWNlUG9ydCI6ODAsImhvc3RuYW1lIjoid3d3LmV4YW1wbGUuY29tIiwic2VydmVyQWRkcmVzc2VzIjpbIjI1NS4yNTUuMjU1LjI1NCJdfV19LCJzZXJ2aWNlTWFpbiI6eyJjbGFzcyI6IlNlcnZpY2VfSFRUUCIsInZpcnR1YWxBZGRyZXNzZXMiOlt7InVzZSI6Ii93YWYvU2hhcmVkL3NlcnZpY2VBZGRyZXNzIn1dLCJ2aXJ0dWFsUG9ydCI6ODAsInNuYXQiOiJhdXRvIiwic2VjdXJpdHlMb2dQcm9maWxlcyI6W3siYmlnaXAiOiIvQ29tbW9uL0xvZyBpbGxlZ2FsIHJlcXVlc3RzIn1dLCJwb29sIjoicG9vbCIsInBvbGljeVdBRiI6eyJ1c2UiOiIvd2FmL1NoYXJlZC9wb2xpY3lXQUYifX19LCJodHRwcyI6eyJjbGFzcyI6IkFwcGxpY2F0aW9uIiwidGVtcGxhdGUiOiJodHRwcyIsInNlcnZlclRMUyI6eyJjbGFzcyI6IlRMU19TZXJ2ZXIiLCJjZXJ0aWZpY2F0ZXMiOlt7ImNlcnRpZmljYXRlIjoiY2VydFNlcnZlciJ9XSwiYXV0aGVudGljYXRpb25UcnVzdENBIjp7ImJpZ2lwIjoiL0NvbW1vbi9jYS1idW5kbGUuY3J0In19LCJjZXJ0U2VydmVyIjp7ImNsYXNzIjoiQ2VydGlmaWNhdGUiLCJjZXJ0aWZpY2F0ZSI6eyJiaWdpcCI6Ii9Db21tb24vd2FmQ2VydC5jcnQifSwicHJpdmF0ZUtleSI6eyJiaWdpcCI6Ii9Db21tb24vd2FmQ2VydC5rZXkifX0sImNsaWVudFRMUyI6eyJjbGFzcyI6IlRMU19DbGllbnQifSwicG9vbCI6eyJjbGFzcyI6IlBvb2wiLCJtb25pdG9ycyI6WyJodHRwcyJdLCJtZW1iZXJzIjpbeyJhZGRyZXNzRGlzY292ZXJ5IjoiZnFkbiIsImF1dG9Qb3B1bGF0ZSI6dHJ1ZSwic2VydmljZVBvcnQiOjQ0MywiaG9zdG5hbWUiOiJ3d3cuZXhhbXBsZS5jb20iLCJzZXJ2ZXJBZGRyZXNzZXMiOlsiMjU1LjI1NS4yNTUuMjU0Il19XX0sInNlcnZpY2VNYWluIjp7ImNsYXNzIjoiU2VydmljZV9IVFRQUyIsInZpcnR1YWxBZGRyZXNzZXMiOlt7InVzZSI6Ii93YWYvU2hhcmVkL3NlcnZpY2VBZGRyZXNzIn1dLCJ2aXJ0dWFsUG9ydCI6NDQzLCJzZXJ2ZXJUTFMiOiJzZXJ2ZXJUTFMiLCJjbGllbnRUTFMiOiJjbGllbnRUTFMiLCJyZWRpcmVjdDgwIjp0cnVlLCJzbmF0IjoiYXV0byIsInNlY3VyaXR5TG9nUHJvZmlsZXMiOlt7ImJpZ2lwIjoiL0NvbW1vbi9Mb2cgaWxsZWdhbCByZXF1ZXN0cyJ9XSwicG9vbCI6InBvb2wiLCJwb2xpY3lXQUYiOnsidXNlIjoiL3dhZi9TaGFyZWQvcG9saWN5V0FGIn19fSwiaHR0cHNfb2ZmbG9hZCI6eyJjbGFzcyI6IkFwcGxpY2F0aW9uIiwidGVtcGxhdGUiOiJodHRwcyIsInNlcnZlclRMUyI6eyJjbGFzcyI6IlRMU19TZXJ2ZXIiLCJjZXJ0aWZpY2F0ZXMiOlt7ImNlcnRpZmljYXRlIjoiY2VydFNlcnZlciJ9XSwiYXV0aGVudGljYXRpb25UcnVzdENBIjp7ImJpZ2lwIjoiL0NvbW1vbi9jYS1idW5kbGUuY3J0In19LCJjZXJ0U2VydmVyIjp7ImNsYXNzIjoiQ2VydGlmaWNhdGUiLCJjZXJ0aWZpY2F0ZSI6eyJiaWdpcCI6Ii9Db21tb24vd2FmQ2VydC5jcnQifSwicHJpdmF0ZUtleSI6eyJiaWdpcCI6Ii9Db21tb24vd2FmQ2VydC5rZXkifX0sInBvb2wiOnsiY2xhc3MiOiJQb29sIiwibW9uaXRvcnMiOlsiaHR0cCJdLCJtZW1iZXJzIjpbeyJhZGRyZXNzRGlzY292ZXJ5IjoiZnFkbiIsImF1dG9Qb3B1bGF0ZSI6dHJ1ZSwic2VydmljZVBvcnQiOjgwLCJob3N0bmFtZSI6Ind3dy5leGFtcGxlLmNvbSIsInNlcnZlckFkZHJlc3NlcyI6WyIyNTUuMjU1LjI1NS4yNTQiXX1dfSwic2VydmljZU1haW4iOnsiY2xhc3MiOiJTZXJ2aWNlX0hUVFBTIiwidmlydHVhbEFkZHJlc3NlcyI6W3sidXNlIjoiL3dhZi9TaGFyZWQvc2VydmljZUFkZHJlc3MifV0sInZpcnR1YWxQb3J0Ijo4MCwic2VydmVyVExTIjoic2VydmVyVExTIiwic25hdCI6ImF1dG8iLCJzZWN1cml0eUxvZ1Byb2ZpbGVzIjpbeyJiaWdpcCI6Ii9Db21tb24vTG9nIGlsbGVnYWwgcmVxdWVzdHMifV0sInBvb2wiOiJwb29sIiwicG9saWN5V0FGIjp7InVzZSI6Ii93YWYvU2hhcmVkL3BvbGljeVdBRiJ9fX19fScKCiAgICAjIHZlcmlmeSB0aGF0IHRoZSBjdXN0b20gcG9saWN5IGlzIGEgVVJMCiAgICBpZiBbWyAkbGV2ZWwgPT0gImN1c3RvbSIgXV07IHRoZW4KICAgICAgICAgaWYgW1sgLW4gJHBvbGljeSAmJiAkcG9saWN5ICE9ICJOT1RfU1BFQ0lGSUVEIiBdXTsgdGhlbgogICAgICAgICAgICAgaWYgW1sgJHBvbGljeSA9fiAkdXJsX3JlZ2V4IF1dOyB0aGVuCiAgICAgICAgICAgICAgICAgIGN1c3RvbV9wb2xpY3k9JHBvbGljeQogICAgICAgICAgICAgICAgICAvdXNyL2Jpbi9jdXJsIC1zayAkY3VzdG9tX3BvbGljeSAtLXJldHJ5IDMgLW8gL3RtcC9jdXN0b21fcG9saWN5LnhtbAogICAgICAgICAgICAgICAgICBhc21fcG9saWN5PSIvdG1wL2N1c3RvbV9wb2xpY3kueG1sIgogICAgICAgICAgICAgZWxzZQogICAgICAgICAgICAgICAgICBlY2hvICJDdXN0b20gcG9saWN5IHdhcyBub3QgYSBVUkwsIGRlZmF1bHRpbmcgdG8gaGlnaCIKICAgICAgICAgICAgICAgICAgYXNtX3BvbGljeT0iL2NvbmZpZy9jbG91ZC9hc20tcG9saWN5LSR0eXBlLWhpZ2gueG1sIgogICAgICAgICAgICAgZmkKICAgICAgICAgZWxzZQogICAgICAgICAgICAgIGVjaG8gIkN1c3RvbSBwb2xpY3kgd2FzIG5vdCBzcGVjaWZpZWQsIGRlZmF1bHRpbmcgdG8gaGlnaCIKICAgICAgICAgICAgICBhc21fcG9saWN5PSIvY29uZmlnL2Nsb3VkL2FzbS1wb2xpY3ktJHR5cGUtaGlnaC54bWwiCiAgICAgICAgIGZpCiAgICBlbHNlCiAgICAgICAgIGFzbV9wb2xpY3k9Ii9jb25maWcvY2xvdWQvYXNtLXBvbGljeS0kdHlwZS0kbGV2ZWwueG1sIgogICAgZmkKCiAgICBpZiBbWyAkbW9kZSA9PSAiaHR0cHMiIHx8ICRtb2RlID09ICJodHRwX2h0dHBzIiB8fCAkbW9kZSA9PSAiaHR0cHNfb2ZmbG9hZCIgXV07IHRoZW4KICAgICAgICAgY2hhaW49Ii9Db21tb24vY2EtYnVuZGxlLmNydCIKCiAgICAgICAgIGVjaG8gIlN0YXJ0aW5nIENlcnRpZmljYXRlIGRvd25sb2FkIgoKICAgICAgICAgY2VydGlmaWNhdGVfbG9jYXRpb249JHNzbF9jZXJ0CgogICAgICAgICByZXNwb25zZV9jb2RlPSQoL3Vzci9iaW4vY3VybCAtc2sgLXUgJHVzZXI6JChwYXNzd2QpIC13ICIle2h0dHBfY29kZX0iICAtWCBQT1NUIC1IICJDb250ZW50LXR5cGU6IGFwcGxpY2F0aW9uL2pzb24iIGh0dHBzOi8vbG9jYWxob3N0OiRkZmxfbWdtdF9wb3J0L21nbXQvdG0vdXRpbC9iYXNoIC1kICd7ICJjb21tYW5kIjoicnVuIiwidXRpbENtZEFyZ3MiOiItYyBcImN1cmwgLWsgLXMgLWYgLS1yZXRyeSA1IC0tcmV0cnktZGVsYXkgMTAgLS1yZXRyeS1tYXgtdGltZSAxMCAtbyAvY29uZmlnL3RtcC5wZnggJyRjZXJ0aWZpY2F0ZV9sb2NhdGlvbidcIiIgfScgLW8gL2Rldi9udWxsKQoKICAgICAgICAgaWYgW1sgJHJlc3BvbnNlX2NvZGUgPT0gMjAwICBdXTsgdGhlbgogICAgICAgICAgICAgIGVjaG8gIkNlcnRpZmljYXRlIGRvd25sb2FkIGNvbXBsZXRlLiIKICAgICAgICAgZWxzZQogICAgICAgICAgICAgZWNobyAiRmFpbGVkIHRvIGRvd25sb2FkIFNTTCBjZXJ0OyBleGl0aW5nIHdpdGggcmVzcG9uc2UgY29kZSAnIiRyZXNwb25zZV9jb2RlIiciCiAgICAgICAgICAgICBleGl0IDEKICAgICAgICAgZmkKCiAgICAgICAgIHJlc3BvbnNlX2NvZGU9JCgvdXNyL2Jpbi9jdXJsIC1za3UgJHVzZXI6JChwYXNzd2QpIC13ICIle2h0dHBfY29kZX0iIC1YIFBPU1QgLUggIkNvbnRlbnQtVHlwZTogYXBwbGljYXRpb24vanNvbiIgaHR0cHM6Ly9sb2NhbGhvc3Q6JGRmbF9tZ210X3BvcnQvbWdtdC90bS9zeXMvY3J5cHRvL3BrY3MxMiAtZCAneyJjb21tYW5kIjogImluc3RhbGwiLCJuYW1lIjogIndhZkNlcnQiLCJvcHRpb25zIjogWyB7ICJmcm9tLWxvY2FsLWZpbGUiOiAiL2NvbmZpZy90bXAucGZ4IiB9LCB7ICJwYXNzcGhyYXNlIjogIiciJHNzbF9wYXNzd2QiJyIgfSBdIH0nIC1vIC9kZXYvbnVsbCkKCiAgICAgICAgIGlmIFtbICRyZXNwb25zZV9jb2RlID09IDIwMCAgXV07IHRoZW4KICAgICAgICAgICAgICBlY2hvICJDZXJ0aWZpY2F0ZSBpbnN0YWxsIGNvbXBsZXRlLiIKICAgICAgICAgZWxzZQogICAgICAgICAgICAgZWNobyAiRmFpbGVkIHRvIGluc3RhbGwgU1NMIGNlcnQ7IGV4aXRpbmcgd2l0aCByZXNwb25zZSBjb2RlICciJHJlc3BvbnNlX2NvZGUiJyIKICAgICAgICAgICAgIGV4aXQgMQogICAgICAgICBmaQogICAgZmkKCiAgICBwYXlsb2FkPSQoZWNobyAkcGF5bG9hZCB8IGpxIC1jIC0tYXJnIGFzbV9wb2xpY3kgJGFzbV9wb2xpY3kgJyAud2FmLlNoYXJlZC5wb2xpY3lXQUYuZmlsZSA9ICRhc21fcG9saWN5JykKCiAgICBwYXlsb2FkPSQoZWNobyAkcGF5bG9hZCB8IGpxIC1jIC0tYXJnIHBvb2xfaHR0cF9wb3J0ICRwb29sX2h0dHBfcG9ydCAtLWFyZyBwb29sX2h0dHBzX3BvcnQgJHBvb2xfaHR0cHNfcG9ydCAtLWFyZyB2c19odHRwX3BvcnQgJHZzX2h0dHBfcG9ydCAtLWFyZyB2c19odHRwc19wb3J0ICR2c19odHRwc19wb3J0ICcgLndhZi5odHRwLnBvb2wubWVtYmVyc1swXS5zZXJ2aWNlUG9ydCA9ICgkcG9vbF9odHRwX3BvcnQgfCB0b251bWJlcikgfCAud2FmLmh0dHAuc2VydmljZU1haW4udmlydHVhbFBvcnQgPSAoJHZzX2h0dHBfcG9ydCB8IHRvbnVtYmVyKSB8IC53YWYuaHR0cHMucG9vbC5tZW1iZXJzWzBdLnNlcnZpY2VQb3J0ID0gKCRwb29sX2h0dHBzX3BvcnQgfCB0b251bWJlcikgfCAud2FmLmh0dHBzLnNlcnZpY2VNYWluLnZpcnR1YWxQb3J0ID0gKCR2c19odHRwc19wb3J0IHwgdG9udW1iZXIpIHwgLndhZi5odHRwc19vZmZsb2FkLnBvb2wubWVtYmVyc1swXS5zZXJ2aWNlUG9ydCA9ICgkcG9vbF9odHRwX3BvcnQgfCB0b251bWJlcikgfCAud2FmLmh0dHBzX29mZmxvYWQuc2VydmljZU1haW4udmlydHVhbFBvcnQgPSAoJHZzX2h0dHBzX3BvcnQgfCB0b251bWJlciknKQoKICAgIGlmIFtbICRwb29sX21lbWJlciA9fiAkaXBfcmVnZXggXV07IHRoZW4KICAgICAgICAgcGF5bG9hZD0kKGVjaG8gJHBheWxvYWQgfCBqcSAtYyAnZGVsKC53YWYuaHR0cC5wb29sLm1lbWJlcnNbMF0uYXV0b1BvcHVsYXRlKSB8IGRlbCgud2FmLmh0dHAucG9vbC5tZW1iZXJzWzBdLmhvc3RuYW1lKSB8IGRlbCgud2FmLmh0dHAucG9vbC5tZW1iZXJzWzBdLmFkZHJlc3NEaXNjb3ZlcnkpIHwgIGRlbCgud2FmLmh0dHBzLnBvb2wubWVtYmVyc1swXS5hdXRvUG9wdWxhdGUpIHwgZGVsKC53YWYuaHR0cHMucG9vbC5tZW1iZXJzWzBdLmhvc3RuYW1lKSB8IGRlbCgud2FmLmh0dHBzLnBvb2wubWVtYmVyc1swXS5hZGRyZXNzRGlzY292ZXJ5KSB8IGRlbCgud2FmLmh0dHBzX29mZmxvYWQucG9vbC5tZW1iZXJzWzBdLmF1dG9Qb3B1bGF0ZSkgfCBkZWwoLndhZi5odHRwc19vZmZsb2FkLnBvb2wubWVtYmVyc1swXS5ob3N0bmFtZSkgfCBkZWwoLndhZi5odHRwc19vZmZsb2FkLnBvb2wubWVtYmVyc1swXS5hZGRyZXNzRGlzY292ZXJ5KScpCgogICAgICAgICBwYXlsb2FkPSQoZWNobyAkcGF5bG9hZCB8IGpxIC1jIC0tYXJnIHBvb2xfbWVtYmVyICRwb29sX21lbWJlciAnLndhZi5odHRwLnBvb2wubWVtYmVyc1swXS5zZXJ2ZXJBZGRyZXNzZXNbMF0gPSAkcG9vbF9tZW1iZXIgfCAud2FmLmh0dHBzLnBvb2wubWVtYmVyc1swXS5zZXJ2ZXJBZGRyZXNzZXNbMF0gPSAkcG9vbF9tZW1iZXIgfCAud2FmLmh0dHBzX29mZmxvYWQucG9vbC5tZW1iZXJzWzBdLnNlcnZlckFkZHJlc3Nlc1swXSA9ICRwb29sX21lbWJlcicpCiAgICBlbHNlCiAgICAgICAgIHBheWxvYWQ9JChlY2hvICRwYXlsb2FkIHwganEgLWMgJ2RlbCgud2FmLmh0dHAucG9vbC5tZW1iZXJzWzBdLnNlcnZlckFkZHJlc3NlcykgfCBkZWwoLndhZi5odHRwcy5wb29sLm1lbWJlcnNbMF0uc2VydmVyQWRkcmVzc2VzKSB8IGRlbCgud2FmLmh0dHBzX29mZmxvYWQucG9vbC5tZW1iZXJzWzBdLnNlcnZlckFkZHJlc3NlcyknKQoKICAgICAgICAgcGF5bG9hZD0kKGVjaG8gJHBheWxvYWQgfCBqcSAtYyAtLWFyZyBwb29sX21lbWJlciAkcG9vbF9tZW1iZXIgJy53YWYuaHR0cC5wb29sLm1lbWJlcnNbMF0uaG9zdG5hbWUgPSAkcG9vbF9tZW1iZXIgfCAud2FmLmh0dHBzLnBvb2wubWVtYmVyc1swXS5ob3N0bmFtZSA9ICRwb29sX21lbWJlciB8IC53YWYuaHR0cHNfb2ZmbG9hZC5wb29sLm1lbWJlcnNbMF0uaG9zdG5hbWUgPSAkcG9vbF9tZW1iZXInKQogICAgZmkKCiAgICBpZiBbWyAkbW9kZSA9PSAiaHR0cCIgXV07IHRoZW4KICAgICAgICBwYXlsb2FkPSQoZWNobyAkcGF5bG9hZCB8IGpxIC1jICdkZWwoLndhZi5odHRwcykgfCBkZWwoLndhZi5odHRwc19vZmZsb2FkKScpCiAgICBlbGlmIFtbICRtb2RlID09ICJodHRwcyIgXV07IHRoZW4KICAgICAgICBwYXlsb2FkPSQoZWNobyAkcGF5bG9hZCB8IGpxIC1jICdkZWwoLndhZi5odHRwKSB8IGRlbCgud2FmLmh0dHBzX29mZmxvYWQpIHwgLndhZi5odHRwcy5jZXJ0U2VydmVyLmNlcnRpZmljYXRlLmJpZ2lwID0gIi9Db21tb24vd2FmQ2VydC5jcnQiIHwgLndhZi5odHRwcy5jZXJ0U2VydmVyLnByaXZhdGVLZXkuYmlnaXAgPSAiL0NvbW1vbi93YWZDZXJ0LmtleSInKQogICAgZWxpZiBbWyAkbW9kZSA9PSAiaHR0cF9odHRwcyIgXV07IHRoZW4KICAgICAgICBwYXlsb2FkPSQoZWNobyAkcGF5bG9hZCB8IGpxIC1jICdkZWwoLndhZi5odHRwc19vZmZsb2FkKSB8IC53YWYuaHR0cHMuc2VydmljZU1haW4ucmVkaXJlY3Q4MCA9IGZhbHNlIHwgLndhZi5odHRwcy5jZXJ0U2VydmVyLmNlcnRpZmljYXRlLmJpZ2lwID0gIi9Db21tb24vd2FmQ2VydC5jcnQiIHwgLndhZi5odHRwcy5jZXJ0U2VydmVyLnByaXZhdGVLZXkuYmlnaXAgPSAiL0NvbW1vbi93YWZDZXJ0LmtleSInKQogICAgZWxzZQogICAgICAgIHBheWxvYWQ9JChlY2hvICRwYXlsb2FkIHwganEgLWMgJ2RlbCgud2FmLmh0dHApIHwgZGVsKC53YWYuaHR0cHMpIHwgLndhZi5odHRwc19vZmZsb2FkLmNlcnRTZXJ2ZXIuY2VydGlmaWNhdGUuYmlnaXAgPSAiL0NvbW1vbi93YWZDZXJ0LmNydCIgfCAud2FmLmh0dHBzX29mZmxvYWQuY2VydFNlcnZlci5wcml2YXRlS2V5LmJpZ2lwID0gIi9Db21tb24vd2FmQ2VydC5rZXkiJykKICAgIGZpCgogICAgIHJlc3BvbnNlX2NvZGU9JCgvdXNyL2Jpbi9jdXJsIC1za3Z2dSAkdXNlcjokKHBhc3N3ZCkgLXcgIiV7aHR0cF9jb2RlfSIgLVggUE9TVCAtSCAiQ29udGVudC1UeXBlOiBhcHBsaWNhdGlvbi9qc29uIiBodHRwczovL2xvY2FsaG9zdDokZGZsX21nbXRfcG9ydC9tZ210L3NoYXJlZC9hcHBzdmNzL2RlY2xhcmUgLWQgIiRwYXlsb2FkIiAtbyAvZGV2L251bGwpCgogICAgIGlmIFtbICRyZXNwb25zZV9jb2RlID09IDIwMCB8fCAkcmVzcG9uc2VfY29kZSA9PSA1MDIgIF1dOyB0aGVuCiAgICAgICAgICBlY2hvICJEZXBsb3ltZW50IG9mIGFwcGxpY2F0aW9uIHN1Y2NlZWRlZC4iCiAgICBlbHNlCiAgICAgICAgIGVjaG8gIkZhaWxlZCB0byBkZXBsb3kgYXBwbGljYXRpb247IGV4aXRpbmcgd2l0aCByZXNwb25zZSBjb2RlICciJHJlc3BvbnNlX2NvZGUiJyIKICAgICAgICAgZXhpdCAxCiAgICAgZmkKIGZpCgplY2hvICJEZXBsb3ltZW50IGNvbXBsZXRlLiIKZXhpdA==",
+        "mgmtRouteGw": "`tmsh list sys management-route default gateway | grep gateway | sed 's/gateway //;s/ //g'`",
+        "mgmtSubnetPrivateAddress": "[parameters('mgmtIpAddressRangeStart')]",
+        "commandArgs": "[concat('-o ', parameters('declarationUrl'), ' -u svc_user')]",
+        "appScript": "IyEvYmluL2Jhc2gKZnVuY3Rpb24gcGFzc3dkKCkgewogIGVjaG8gfCBmNS1yZXN0LW5vZGUgL2NvbmZpZy9jbG91ZC9henVyZS9ub2RlX21vZHVsZXMvQGY1ZGV2Y2VudHJhbC9mNS1jbG91ZC1saWJzL3NjcmlwdHMvZGVjcnlwdERhdGFGcm9tRmlsZS5qcyAtLWRhdGEtZmlsZSAvY29uZmlnL2Nsb3VkLy5wYXNzd2QgfCBhd2sgJ3twcmludCAkMX0nCn0KCndoaWxlIGdldG9wdHMgbzp1OiBvcHRpb24KZG8gY2FzZSAiJG9wdGlvbiIgIGluCiAgICAgICAgbykgZGVjbGFyYXRpb25Vcmw9JE9QVEFSRzs7CiAgICAgICAgdSkgdXNlcj0kT1BUQVJHOzsKICAgIGVzYWMKZG9uZQoKZGVwbG95ZWQ9Im5vIgpmaWxlX2xvYz0iL2NvbmZpZy9jbG91ZC9jdXN0b21fY29uZmlnIgpkZmxfbWdtdF9wb3J0PWB0bXNoIGxpc3Qgc3lzIGh0dHBkIHNzbC1wb3J0IHwgZ3JlcCBzc2wtcG9ydCB8IHNlZCAncy9zc2wtcG9ydCAvLztzLyAvL2cnYAp1cmxfcmVnZXg9IihodHRwOlwvXC98aHR0cHM6XC9cLyk/W2EtejAtOV0rKFtcLVwuXXsxfVthLXowLTldKykqXC5bYS16XXsyLDV9KDpbMC05XXsxLDV9KT8oXC8uKik/JCIKCmlmIFtbICRkZWNsYXJhdGlvblVybCA9fiAkdXJsX3JlZ2V4IF1dOyB0aGVuCiAgICByZXNwb25zZV9jb2RlPSQoL3Vzci9iaW4vY3VybCAtc2sgLXcgIiV7aHR0cF9jb2RlfSIgJGRlY2xhcmF0aW9uVXJsIC1vICRmaWxlX2xvYykKICAgIGlmIFtbICRyZXNwb25zZV9jb2RlID09IDIwMCBdXTsgdGhlbgogICAgICAgICBlY2hvICJDdXN0b20gY29uZmlnIGRvd25sb2FkIGNvbXBsZXRlOyBjaGVja2luZyBmb3IgdmFsaWQgSlNPTi4iCiAgICAgICAgIGNhdCAkZmlsZV9sb2MgfCBqcSAuY2xhc3MKICAgICAgICAgaWYgW1sgJD8gPT0gMCBdXTsgdGhlbgogICAgICAgICAgICAgcmVzcG9uc2VfY29kZT0kKC91c3IvYmluL2N1cmwgLXNrdnZ1ICR1c2VyOiQocGFzc3dkKSAtdyAiJXtodHRwX2NvZGV9IiAtWCBQT1NUIC1IICJDb250ZW50LVR5cGU6IGFwcGxpY2F0aW9uL2pzb24iIGh0dHBzOi8vbG9jYWxob3N0OiRkZmxfbWdtdF9wb3J0L21nbXQvc2hhcmVkL2FwcHN2Y3MvZGVjbGFyZSAtZCBAJGZpbGVfbG9jIC1vIC9kZXYvbnVsbCkKCiAgICAgICAgICAgICBpZiBbWyAkcmVzcG9uc2VfY29kZSA9PSAyMDAgfHwgJHJlc3BvbnNlX2NvZGUgPT0gNTAyIF1dOyB0aGVuCiAgICAgICAgICAgICAgICAgIGVjaG8gIkRlcGxveW1lbnQgb2YgYXBwbGljYXRpb24gc3VjY2VlZGVkLiIKICAgICAgICAgICAgICAgICAgZGVwbG95ZWQ9InllcyIKICAgICAgICAgICAgIGVsc2UKICAgICAgICAgICAgICAgICBlY2hvICJGYWlsZWQgdG8gZGVwbG95IGFwcGxpY2F0aW9uOyBjb250aW51aW5nIHdpdGggcmVzcG9uc2UgY29kZSAnIiRyZXNwb25zZV9jb2RlIiciCiAgICAgICAgICAgICBmaQogICAgICAgICBlbHNlCiAgICAgICAgICAgICBlY2hvICJDdXN0b20gY29uZmlnIHdhcyBub3QgdmFsaWQgSlNPTiwgY29udGludWluZyIKICAgICAgICAgZmkKICAgIGVsc2UKICAgICAgICBlY2hvICJGYWlsZWQgdG8gZG93bmxvYWQgY3VzdG9tIGNvbmZpZzsgY29udGludWluZyB3aXRoIHJlc3BvbnNlIGNvZGUgJyIkcmVzcG9uc2VfY29kZSInIgogICAgZmkKZWxzZQogICAgIGVjaG8gIkN1c3RvbSBjb25maWcgd2FzIG5vdCBhIFVSTCwgY29udGludWluZy4iCmZpCgppZiBbWyAkZGVwbG95ZWQgPT0gIm5vIiAmJiAkZGVjbGFyYXRpb25VcmwgPT0gIk5PVF9TUEVDSUZJRUQiIF1dOyB0aGVuCiAgICBlY2hvICJBcHBsaWNhdGlvbiBkZXBsb3ltZW50IGZhaWxlZCBvciBjdXN0b20gVVJMIHdhcyBub3Qgc3BlY2lmaWVkLiIKZmkKCmVjaG8gIkRlcGxveW1lbnQgY29tcGxldGUuIgpleGl0",
+        "extSubnetPrivateAddressSuffixInt": "[int(variables('extSubnetPrivateAddressPrefixArray')[3])]",
+        "extSubnetName": "[parameters('externalSubnetName')]",
+        "extSubnetPrivateAddress": "[parameters('externalIpSelfAddressRangeStart')]",
+        "extSubnetPrivateAddressPrefix": "[concat(variables('extSubnetPrivateAddressPrefixArray')[0], '.', variables('extSubnetPrivateAddressPrefixArray')[1], '.', variables('extSubnetPrivateAddressPrefixArray')[2], '.')]",
+        "extNsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',concat(variables('dnsLabel'),'-ext-nsg'))]",
+        "extSelfPublicIpAddressNamePrefix": "[concat(variables('dnsLabel'), '-self-pip')]",
+        "extSelfPublicIpAddressIdPrefix": "[resourceId('Microsoft.Network/publicIPAddresses', variables('extSelfPublicIpAddressNamePrefix'))]",
+        "extpublicIPAddressNamePrefix": "[concat(variables('dnsLabel'), '-ext-pip')]",
+        "extPublicIPAddressIdPrefix": "[resourceId('Microsoft.Network/publicIPAddresses', variables('extPublicIPAddressNamePrefix'))]",
+        "extNicName": "[concat(variables('dnsLabel'), '-ext')]",
+        "extSubnetId": "[concat(variables('vnetId'), '/subnets/', variables('extsubnetName'))]",
+        "routeCmd": "route",
+        "intSubnetName": "[parameters('internalSubnetName')]",
+        "intSubnetPrivateAddress": "[parameters('internalIpAddressRangeStart')]",
+        "intNicName": "[concat(variables('dnsLabel'), '-int')]",
+        "intSubnetId": "[concat(variables('vnetId'), '/subnets/', variables('intsubnetName'))]",
+        "mgmtSubnetPrivateAddress1": "[concat(variables('mgmtSubnetPrivateAddressPrefix'), variables('mgmtSubnetPrivateAddressSuffix'))]",
+        "extSubnetPrivateAddress1": "[concat(variables('extSubnetSelfPrivateAddressPrefix'), variables('extSubnetSelfPrivateAddressSuffix'))]",
+        "intSubnetPrivateAddress1": "[concat(variables('intSubnetPrivateAddressPrefix'), variables('intSubnetPrivateAddressSuffix'))]",
         "availabilitySetName": "[concat(variables('dnsLabel'), '-avset')]",
         "zoneMappings": "[replace(toLower(string(providers('Microsoft.Compute', 'virtualMachines').zoneMappings)), ' ', '')]",
         "zonesAvailable": "[contains(variables('zoneMappings'), concat('\"', variables('location'), '\"'))]",
         "availabilitySetId": {
             "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
         },
+        "extSubnetPrivateAddressPrefixArray": "[split(parameters('externalIpAddressRangeStart'), '.')]",
+        "extSubnetPrivateAddressSuffix0": "[add(variables('extSubnetPrivateAddressSuffixInt'), 1)]",
+        "extSubnetPrivateAddressSuffix1": "[add(variables('extSubnetPrivateAddressSuffixInt'), 2)]",
+        "extSubnetRef": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', parameters('vnetResourceGroupName'), '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/', parameters('externalSubnetName'))]",
+        "intSubnetRef": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', parameters('vnetResourceGroupName'), '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/', parameters('internalSubnetName'))]",
+        "mgmtSubnetPrivateAddressPrefixArray": "[split(parameters('mgmtIpAddressRangeStart'), '.')]",
+        "mgmtSubnetPrivateAddressPrefix": "[concat(variables('mgmtSubnetPrivateAddressPrefixArray')[0], '.', variables('mgmtSubnetPrivateAddressPrefixArray')[1], '.', variables('mgmtSubnetPrivateAddressPrefixArray')[2], '.')]",
+        "mgmtSubnetPrivateAddressSuffixInt": "[int(variables('mgmtSubnetPrivateAddressPrefixArray')[3])]",
+        "mgmtSubnetPrivateAddressSuffix": "[add(variables('mgmtSubnetPrivateAddressSuffixInt'), 1)]",
+        "extSubnetSelfPrivateAddressPrefixArray": "[split(parameters('externalIpSelfAddressRangeStart'), '.')]",
+        "extSubnetSelfPrivateAddressPrefix": "[concat(variables('extSubnetSelfPrivateAddressPrefixArray')[0], '.', variables('extSubnetSelfPrivateAddressPrefixArray')[1], '.', variables('extSubnetSelfPrivateAddressPrefixArray')[2], '.')]",
+        "extSubnetSelfPrivateAddressSuffixInt": "[int(variables('extSubnetSelfPrivateAddressPrefixArray')[3])]",
+        "extSubnetSelfPrivateAddressSuffix": "[add(variables('extSubnetSelfPrivateAddressSuffixInt'), 1)]",
+        "intSubnetPrivateAddressPrefixArray": "[split(parameters('internalIpAddressRangeStart'), '.')]",
+        "intSubnetPrivateAddressPrefix": "[concat(variables('intSubnetPrivateAddressPrefixArray')[0], '.', variables('intSubnetPrivateAddressPrefixArray')[1], '.', variables('intSubnetPrivateAddressPrefixArray')[2], '.')]",
+        "intSubnetPrivateAddressSuffixInt": "[int(variables('intSubnetPrivateAddressPrefixArray')[3])]",
+        "intSubnetPrivateAddressSuffix": "[add(variables('intSubnetPrivateAddressSuffixInt'), 1)]",
+        "numberOfExternalIps": "[parameters('numberOfExternalIps')]",
         "imageNameSub": "[variables('imageNameArray')[parameters('bigIpVersion')][parameters('imageName')]]",
         "imageNameArray": {
             "14.1.003000": {
@@ -604,53 +652,6 @@
                 "bigip-virtual-edition-good": "good"
             }
         },
-        "externalLoadBalancerName": "[concat(variables('dnsLabel'),'-ext-alb')]",
-        "extLbId": "[resourceId('Microsoft.Network/loadBalancers',variables('externalLoadBalancerName'))]",
-        "deviceNamePrefix": "[concat(variables('dnsLabel'),'-device')]",
-        "frontEndIPConfigID": "[concat(variables('extLbId'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
-        "appInsightsApiVersion": "2015-04-01",
-        "appInsightsComponentsApiVersion": "2015-05-01",
-        "vmssName": "[concat(parameters('dnsLabel'),'-vmss')]",
-        "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]",
-        "defaultAppInsightsLocation": "eastus",
-        "appInsightsLocation": "[split(concat(parameters('appInsights'), ':', variables('defaultAppInsightsLocation')), ':')[1]]",
-        "appInsightsName": "[replace(split(parameters('appInsights'), ':')[0], 'CREATE_NEW', concat(deployment().name, '-appinsights'))]",
-        "appInsightsNameArray": "[split(concat(variables('appInsightsName'), ';', variables('resourceGroupName')) , ';')]",
-        "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
-        "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
-        "cpuMetricName": "F5_TMM_CPU",
-        "throughputMetricName": "F5_TMM_TRAFFIC",
-        "scaleMetricMap": {
-            "F5_TMM_CPU": {
-                "metricName": "customMetrics/F5_TMM_CPU",
-                "metricResourceUri": "[resourceId(variables('appInsightsNameArray')[1], 'Microsoft.Insights/components', variables('appInsightsNameArray')[0])]",
-                "thresholdIn": "[parameters('scaleInCpuThreshold')]",
-                "thresholdOut": "[parameters('scaleOutCpuThreshold')]"
-            },
-            "F5_TMM_Traffic": {
-                "metricName": "customMetrics/F5_TMM_TRAFFIC",
-                "metricResourceUri": "[resourceId(variables('appInsightsNameArray')[1], 'Microsoft.Insights/components', variables('appInsightsNameArray')[0])]",
-                "thresholdIn": "[parameters('scaleInThroughputThreshold')]",
-                "thresholdOut": "[parameters('scaleOutThroughputThreshold')]"
-            }
-        },
-        "customEmailBaseArray": [
-            ""
-        ],
-        "customEmail": "[skip(union(variables('customEmailBaseArray'), split(replace(parameters('notificationEmail'), 'OPTIONAL', ''), ';')), 1)]",
-        "publicIpAddressConfiguration": {
-            "name": "publicIp01",
-            "properties": {
-                "idleTimeoutInMinutes": 15
-            }
-        },
-        "lbTcpProbeNameHttp": "tcp_probe_http",
-        "lbTcpProbeIdHttp": "[concat(variables('extLbId'),'/probes/',variables('lbTcpProbeNameHttp'))]",
-        "lbTcpProbeNameHttps": "tcp_probe_https",
-        "lbTcpProbeIdHttps": "[concat(variables('extLbId'),'/probes/',variables('lbTcpProbeNameHttps'))]",
-        "httpBackendPort": "[parameters('applicationPort')]",
-        "httpsBackendPort": "[parameters('applicationSecurePort')]",
-        "f5NetworksSolutionScripts": "[concat('http://cdn.f5.com/product/cloudsolutions/solution-scripts/')]",
         "publicIPAddressType": "Static",
         "mgmtPublicIPAddressName": "[concat(variables('dnsLabel'), '-mgmt-pip')]",
         "mgmtPublicIPAddressId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('mgmtPublicIPAddressName'))]",
@@ -670,19 +671,19 @@
             },
             "Yes": {
                 "hashCmd": "[concat('custId=`echo \"', variables('subscriptionId'), '\"|sha512sum|cut -d \" \" -f 1`; deployId=`echo \"', variables('deploymentId'), '\"|sha512sum|cut -d \" \" -f 1`')]",
-                "metricsCmd": "[concat(' --usageAnalytics \\\" --metrics customerId:${custId},deploymentId:${deployId},templateName:as_waf_via-lb-existing-stack-supported-bigiq,templateVersion:7.0.0.2,region:', variables('location'), ',bigIpVersion:', parameters('bigIpVersion') ,',licenseType:bigiq,cloudLibsVersion:', variables('f5CloudLibsTag'), ',cloudName:azure\\\"')]"
+                "metricsCmd": "[concat(' --metrics customerId:${custId},deploymentId:${deployId},templateName:failover_nnic-existing-stack-supported-bigiq,templateVersion:7.0.0.2,region:', variables('location'), ',bigIpVersion:', parameters('bigIpVersion') ,',licenseType:bigiq,cloudLibsVersion:', variables('f5CloudLibsTag'), ',cloudName:azure')]"
             }
         },
         "osProfiles": {
             "password": {
                 "adminPassword": "[variables('adminPasswordOrKey')]",
                 "adminUsername": "[parameters('adminUsername')]",
-                "computerNamePrefix": "[variables('vmssName')]",
+                "computerName": "[variables('instanceName')]",
                 "linuxConfiguration": "[json('null')]"
             },
             "sshPublicKey": {
                 "adminUsername": "[parameters('adminUsername')]",
-                "computerNamePrefix": "[variables('vmssName')]",
+                "computerName": "[variables('instanceName')]",
                 "linuxConfiguration": "[variables('linuxConfiguration')]"
             }
         },
@@ -690,21 +691,326 @@
     },
     "resources": [
         {
+            "condition": "[equals(parameters('provisionPublicIP'),'Yes')]",
             "apiVersion": "[variables('networkApiVersion')]",
             "sku": {
                 "name": "Standard"
             },
             "location": "[variables('location')]",
-            "name": "[variables('mgmtPublicIPAddressName')]",
+            "name": "[concat(variables('mgmtPublicIPAddressName'), '0')]",
             "properties": {
                 "dnsSettings": {
-                    "domainNameLabel": "[variables('dnsLabel')]"
+                    "domainNameLabel": "[concat(variables('dnsLabel'), '-0')]"
                 },
                 "idleTimeoutInMinutes": 30,
                 "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
             },
             "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
             "type": "Microsoft.Network/publicIPAddresses"
+        },
+        {
+            "condition": "[equals(parameters('provisionPublicIP'),'Yes')]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "location": "[variables('location')]",
+            "name": "[concat(variables('mgmtPublicIPAddressName'), '1')]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[concat(variables('dnsLabel'), '-1')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/publicIPAddresses"
+        },
+        {
+            "condition": "[equals(parameters('provisionPublicIP'),'Yes')]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "location": "[variables('location')]",
+            "name": "[concat(variables('extSelfPublicIpAddressNamePrefix'), '0')]",
+            "properties": {
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/publicIPAddresses"
+        },
+        {
+            "condition": "[equals(parameters('provisionPublicIP'),'Yes')]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "location": "[variables('location')]",
+            "name": "[concat(variables('extSelfPublicIpAddressNamePrefix'), '1')]",
+            "properties": {
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/publicIPAddresses"
+        },
+        {
+            "condition": "[and(equals(parameters('provisionPublicIP'),'Yes'), not(equals(variables('numberOfExternalIps'),0)))]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "copy": {
+                "count": "[if(not(equals(variables('numberOfExternalIps'), 0)), variables('numberOfExternalIps'), 1)]",
+                "name": "extpipcopy"
+            },
+            "location": "[variables('location')]",
+            "name": "[concat(variables('extPublicIPAddressNamePrefix'), copyIndex())]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[concat(variables('dnsLabel'), copyIndex(0))]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/publicIPAddresses"
+        },
+        {
+            "apiVersion": "[variables('networkApiVersion')]",
+            "dependsOn": [
+                "[variables('mgmtNsgID')]",
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('mgmtPublicIPAddressName'), '0')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('mgmtNicName'), '0')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "[concat(variables('dnsLabel'), '-mgmt-ipconfig')]",
+                        "properties": {
+                            "PublicIpAddress": "[if(equals(parameters('provisionPublicIP'),'No'), json('null'), json(concat('{\"Id\": \"', variables('mgmtPublicIPAddressId'), '0', '\"}')))]",
+                            "privateIPAddress": "[variables('mgmtSubnetPrivateAddress')]",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[variables('mgmtSubnetId')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('mgmtNsgID')]"
+                }
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion": "[variables('networkApiVersion')]",
+            "dependsOn": [
+                "[variables('mgmtNsgID')]",
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('mgmtPublicIPAddressName'), '1')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('mgmtNicName'), '1')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "[concat(variables('dnsLabel'), '-mgmt-ipconfig')]",
+                        "properties": {
+                            "PublicIpAddress": "[if(equals(parameters('provisionPublicIP'),'No'), json('null'), json(concat('{\"Id\": \"', variables('mgmtPublicIPAddressId'), '1', '\"}')))]",
+                            "privateIPAddress": "[variables('mgmtSubnetPrivateAddress1')]",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[variables('mgmtSubnetId')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('mgmtNsgID')]"
+                }
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion": "[variables('networkApiVersion')]",
+            "dependsOn": [
+                "extpipcopy",
+                "[variables('extNsgID')]",
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('extSelfPublicIpAddressNamePrefix'), '0')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('extNicName'), '0')]",
+            "properties": {
+                "copy": [
+                    {
+                        "count": "[add(variables('numberOfExternalIps'), 1)]",
+                        "input": {
+                            "name": "[if(equals(copyIndex('ipConfigurations'), 0), concat(variables('instanceName'), '-self-ipconfig'), concat(variables('resourceGroupName'), '-ext-ipconfig', sub(copyIndex('ipConfigurations'), 1)))]",
+                            "properties": {
+                                "PublicIpAddress": "[if(equals(parameters('provisionPublicIP'),'No'), json('null'), json(concat('{\"Id\": \"', if(equals(copyIndex('ipConfigurations'), 0), concat(variables('extSelfPublicIpAddressIdPrefix'), '0'), concat(variables('extPublicIPAddressIdPrefix'), sub(copyIndex('ipConfigurations'), 1))), '\"}')))]",
+                                "primary": "[if(equals(copyIndex('ipConfigurations'), 0), 'True', 'False')]",
+                                "privateIPAddress": "[if(equals(copyIndex('ipConfigurations'), 0), variables('extSubnetPrivateAddress'), concat(variables('extSubnetPrivateAddressPrefix'), add(variables('extSubnetPrivateAddressSuffixInt'), sub(copyIndex('ipConfigurations'), 1))))]",
+                                "privateIPAllocationMethod": "Static",
+                                "subnet": {
+                                    "id": "[variables('extSubnetId')]"
+                                }
+                            }
+                        },
+                        "name": "ipConfigurations"
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[concat(variables('extNsgID'))]"
+                }
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion": "[variables('networkApiVersion')]",
+            "dependsOn": [
+                "extpipcopy",
+                "[variables('extNsgID')]",
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('extSelfPublicIpAddressNamePrefix'), '1')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('extNicName'), '1')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "[concat(variables('instanceName'), '-self-ipconfig')]",
+                        "properties": {
+                            "PublicIpAddress": "[if(equals(parameters('provisionPublicIP'),'No'), json('null'), json(concat('{\"Id\": \"', concat(variables('extSelfPublicIpAddressIdPrefix'), '1'), '\"}')))]",
+                            "primary": true,
+                            "privateIPAddress": "[variables('extSubnetPrivateAddress1')]",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[variables('extSubnetId')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[concat(variables('extNsgID'))]"
+                }
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion": "[variables('networkApiVersion')]",
+            "dependsOn": [
+                "extpipcopy",
+                "[variables('extNsgID')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('intNicName'), '0')]",
+            "properties": {
+                "enableIPForwarding": true,
+                "primary": true,
+                "ipConfigurations": [
+                    {
+                        "name": "[concat(variables('dnsLabel'), '-int-ipconfig')]",
+                        "properties": {
+                            "privateIPAddress": "[variables('intSubnetPrivateAddress')]",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[variables('intSubnetId')]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion": "[variables('networkApiVersion')]",
+            "dependsOn": [
+                "extpipcopy",
+                "[variables('extNsgID')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('intNicName'), '1')]",
+            "properties": {
+                "enableIPForwarding": true,
+                "primary": true,
+                "ipConfigurations": [
+                    {
+                        "name": "[concat(variables('dnsLabel'), '-int-ipconfig')]",
+                        "properties": {
+                            "privateIPAddress": "[variables('intSubnetPrivateAddress1')]",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[variables('intSubnetId')]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion": "[variables('networkApiVersion')]",
+            "condition": "[greaterOrEquals(parameters('numberOfAdditionalNics'), 1)]",
+            "copy": {
+                "count": "[if(greaterOrEquals(parameters('numberOfAdditionalNics'), 1), parameters('numberOfAdditionalNics'), 1)]",
+                "name": "addtlniccopy0"
+            },
+            "dependsOn": [
+                "[variables('mgmtNsgID')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('addtlNicName'), copyIndex(1), '0')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(variables('vnetId'), '/subnets/', variables('addtlNicRefSplit')[copyIndex()])]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkInterfaces"
+        },
+        {
+            "apiVersion": "[variables('networkApiVersion')]",
+            "condition": "[greaterOrEquals(parameters('numberOfAdditionalNics'), 1)]",
+            "copy": {
+                "count": "[if(greaterOrEquals(parameters('numberOfAdditionalNics'), 1), parameters('numberOfAdditionalNics'), 1)]",
+                "name": "addtlniccopy1"
+            },
+            "dependsOn": [
+                "[variables('mgmtNsgID')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('addtlNicName'), copyIndex(1), '1')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(variables('vnetId'), '/subnets/', variables('addtlNicRefSplit')[copyIndex()])]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkInterfaces"
         },
         {
             "apiVersion": "[variables('networkApiVersion')]",
@@ -739,62 +1045,6 @@
                             "sourceAddressPrefix": "[parameters('restrictedSrcAddress')]",
                             "sourcePortRange": "*"
                         }
-                    },
-                    {
-                        "name": "app_allow_http",
-                        "properties": {
-                            "access": "Allow",
-                            "description": "",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "[variables('httpBackendPort')]",
-                            "direction": "Inbound",
-                            "priority": 110,
-                            "protocol": "Tcp",
-                            "sourceAddressPrefix": "*",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "app_allow_https",
-                        "properties": {
-                            "access": "Allow",
-                            "description": "",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "[variables('httpsBackendPort')]",
-                            "direction": "Inbound",
-                            "priority": 111,
-                            "protocol": "Tcp",
-                            "sourceAddressPrefix": "*",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "allow_loadBalancer_traffic",
-                        "properties": {
-                            "access": "Allow",
-                            "description": "",
-                            "destinationAddressPrefix": "AzureLoadBalancer",
-                            "destinationPortRange": "*",
-                            "direction": "Outbound",
-                            "priority": 110,
-                            "protocol": "Tcp",
-                            "sourceAddressPrefix": "*",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "disallow_inbound_traffic",
-                        "properties": {
-                            "access": "[if(equals(parameters('provisionPublicIP'), 'No'), 'Deny', 'Allow')]",
-                            "description": "",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "*",
-                            "direction": "Inbound",
-                            "priority": 113,
-                            "protocol": "Tcp",
-                            "sourceAddressPrefix": "Internet",
-                            "sourcePortRange": "*"
-                        }
                     }
                 ]
             },
@@ -803,117 +1053,28 @@
         },
         {
             "apiVersion": "[variables('networkApiVersion')]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('mgmtPublicIPAddressName'))]"
-            ],
             "location": "[variables('location')]",
-            "name": "[variables('externalLoadBalancerName')]",
+            "name": "[concat(variables('dnsLabel'), '-ext-nsg')]",
             "properties": {
-                "backendAddressPools": [
-                    {
-                        "name": "loadBalancerBackEnd"
-                    }
-                ],
-                "frontendIPConfigurations": [
-                    {
-                        "name": "loadBalancerFrontEnd",
-                        "properties": {
-                            "publicIPAddress": {
-                                "id": "[variables('mgmtPublicIPAddressId')]"
-                            }
-                        }
-                    }
-                ],
-                "inboundNatPools": [
-                    {
-                        "name": "sshnatpool",
-                        "properties": {
-                            "backendPort": 22,
-                            "frontendIPConfiguration": {
-                                "id": "[variables('frontEndIPConfigID')]"
-                            },
-                            "frontendPortRangeEnd": 50100,
-                            "frontendPortRangeStart": 50001,
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "name": "mgmtnatpool",
-                        "properties": {
-                            "backendPort": "[variables('bigIpMgmtPort')]",
-                            "frontendIPConfiguration": {
-                                "id": "[variables('frontEndIPConfigID')]"
-                            },
-                            "frontendPortRangeEnd": 50200,
-                            "frontendPortRangeStart": 50101,
-                            "protocol": "Tcp"
-                        }
-                    }
-                ],
-                "loadBalancingRules": [
-                    {
-                        "Name": "app-http",
-                        "properties": {
-                            "backendAddressPool": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('externalLoadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
-                            },
-                            "backendPort": "[variables('httpBackendPort')]",
-                            "frontendIPConfiguration": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('externalLoadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
-                            },
-                            "frontendPort": "[parameters('applicationPort')]",
-                            "idleTimeoutInMinutes": 15,
-                            "probe": {
-                                "id": "[variables('lbTcpProbeIdHttp')]"
-                            },
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "Name": "app-https",
-                        "properties": {
-                            "backendAddressPool": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('externalLoadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
-                            },
-                            "backendPort": "[variables('httpsBackendPort')]",
-                            "frontendIPConfiguration": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('externalLoadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
-                            },
-                            "frontendPort": "[parameters('applicationSecurePort')]",
-                            "idleTimeoutInMinutes": 15,
-                            "probe": {
-                                "id": "[variables('lbTcpProbeIdHttps')]"
-                            },
-                            "protocol": "Tcp"
-                        }
-                    }
-                ],
-                "probes": [
-                    {
-                        "name": "[variables('lbTcpProbeNameHttp')]",
-                        "properties": {
-                            "intervalInSeconds": 15,
-                            "numberOfProbes": 3,
-                            "port": "[variables('httpBackendPort')]",
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "name": "[variables('lbTcpProbeNameHttps')]",
-                        "properties": {
-                            "intervalInSeconds": 15,
-                            "numberOfProbes": 3,
-                            "port": "[variables('httpsBackendPort')]",
-                            "protocol": "Tcp"
-                        }
-                    }
-                ]
+                "securityRules": []
             },
             "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Network/networkSecurityGroups"
+        },
+        {
+            "apiVersion": "[variables('computeApiVersion')]",
+            "location": "[variables('location')]",
+            "name": "[variables('availabilitySetName')]",
             "sku": {
-                "name": "Standard"
+                "name": "Aligned"
             },
-            "type": "Microsoft.Network/loadBalancers"
+            "properties": {
+                "PlatformFaultDomainCount": 2,
+                "PlatformUpdateDomainCount": 2
+            },
+            "condition": "[not(variables('zonesAvailable'))]",
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Compute/availabilitySets"
         },
         {
             "apiVersion": "[variables('storageApiVersion')]",
@@ -951,228 +1112,140 @@
         {
             "apiVersion": "[variables('computeApiVersion')]",
             "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]"
+                "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]",
+                "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
+                "[variables('newCustomImageName')]",
+                "addtlniccopy0",
+                "addtlniccopy1",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('mgmtNicName'), '0')]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('extNicName'), '0')]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('intNicName'), '0')]"
             ],
             "location": "[variables('location')]",
-            "name": "[variables('vmssName')]",
+            "name": "[concat(variables('dnsLabel'), '-', variables('instanceName'), '0')]",
             "plan": "[if(variables('useCustomImage'), json('null'), variables('imagePlan'))]",
             "properties": {
-                "overprovision": false,
-                "upgradePolicy": {
-                    "mode": "Manual"
+                "availabilitySet": "[if(not(variables('zonesAvailable')), variables('availabilitySetId'), json('null'))]",
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob]"
+                    }
                 },
-                "virtualMachineProfile": {
-                    "extensionProfile": {
-                        "extensions": [
-                            {
-                                "name": "main",
-                                "properties": {
-                                    "protectedSettings": {
-                                        "commandToExecute": "[concat('function cp_logs() { cd /var/lib/waagent/custom-script/download && cp `ls -r | head -1`/std* /var/log/cloud/azure; cd /var/log/cloud/azure && cat stdout stderr > install.log; }; CLOUD_LIB_DIR=/config/cloud/azure/node_modules/@f5devcentral; mkdir -p $CLOUD_LIB_DIR; mkdir -p /var/log/cloud/azure; cp asm-policy.tar.gz *.tmpl /config/cloud; tar xfz /config/cloud/asm-policy.tar.gz -C /config/cloud; echo ', variables('appScript'), ' | /usr/bin/base64 -d > /config/cloud/deploy_app.sh; chmod +x /config/cloud/deploy_app.sh; /usr/bin/install -m 400 /dev/null /config/cloud/.passwd; /usr/bin/install -m 400 /dev/null /config/cloud/.azCredentials; cp f5-cloud-libs*.tar.gz* /config/cloud; mkdir -p /var/config/rest/downloads && cp ', variables('f5AS3Build'), ' /var/config/rest/downloads; /usr/bin/install -b -m 755 /dev/null /config/verifyHash; /usr/bin/install -b -m 755 /dev/null /config/installCloudLibs.sh; echo -e ', variables('verifyHash'), ' >> /config/verifyHash; echo -e ', variables('installCloudLibs'), ' >> /config/installCloudLibs.sh; echo -e ', variables('installCustomConfig'), ' >> /config/customConfig.sh; bash /config/installCloudLibs.sh; source $CLOUD_LIB_DIR/f5-cloud-libs/scripts/util.sh; encrypt_secret ', variables('singleQuote'), '{\"clientId\": \"', parameters('clientId'), '\", \"tenantId\": \"', parameters('tenantId'), '\", \"secret\": \"', parameters('servicePrincipalSecret'), '\", \"subscriptionId\": \"', variables('subscriptionID'), '\", \"storageAccount\": \"', variables('newDataStorageAccountName'), '\", \"storageKey\": \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newDataStorageAccountName')), variables('storageApiVersion')).keys[0].value, '\", \"vmssName\": \"', variables('vmssName'), '\", \"resourceGroupName\": \"', variables('resourceGroupName'), '\", \"loadBalancerName\": \"', variables('externalLoadBalancerName'), '\", \"appInsightsName\": \"', variables('appInsightsName'), '\", \"appInsightsId\": \"', reference(resourceId(variables('appInsightsNameArray')[1], 'Microsoft.Insights/components', variables('appInsightsNameArray')[0]), variables('appInsightsComponentsApiVersion')).AppId, '\", \"location\": \"', variables('location'), '\"}', variables('singleQuote'), ' \"/config/cloud/.azCredentials\" \"\" true; encrypt_secret ', variables('singleQuote'), variables('adminPasswordOrKey'), variables('singleQuote'), ' \"/config/cloud/.passwd\" true; $CLOUD_LIB_DIR/f5-cloud-libs/scripts/createUser.sh --user svc_user --password-file /config/cloud/.passwd --password-encrypted; /usr/bin/install -m 400 /dev/null /config/cloud/.bigIqPasswd; encrypt_secret ', variables('singleQuote'), parameters('bigIqPassword'), variables('singleQuote'), ' \"/config/cloud/.bigIqPasswd\"; ', variables('allowUsageAnalytics')[parameters('allowUsageAnalytics')].hashCmd, '; /usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs/scripts/runScript.js --output /var/log/cloud/azure/autoscale.log --log-level info --file $CLOUD_LIB_DIR/f5-cloud-libs-azure/scripts/autoscale.sh --shell /bin/bash --cl-args \"--deploymentType waf --logLevel info --backupUcs 7 --resourceGroup ', resourceGroup().name, ' --vmssName ', variables('vmssName'), ' --userName svc_user --password /config/cloud/.passwd --azureSecretFile /config/cloud/.azCredentials --managementPort ', variables('bigIpMgmtPort'), ' --ntpServer ', parameters('ntpServer'), ' --as3Build ', variables('f5AS3Build'), ' --timeZone ', parameters('timeZone'), ' --bigIpModules ', parameters('bigIpModules'), variables('allowUsageAnalytics')[parameters('allowUsageAnalytics')].metricsCmd, ' --appScriptArgs \\\"', variables('commandArgs'), '\\\"', ' --appInsightsKey ', reference(resourceId(variables('appInsightsNameArray')[1], 'Microsoft.Insights/components', variables('appInsightsNameArray')[0]), variables('appInsightsComponentsApiVersion')).InstrumentationKey, ' --bigIqAddress ', parameters('bigIqAddress'), ' --bigIqUsername ', parameters('bigIqUsername'), ' --bigIqPassword /config/cloud/.bigIqPasswd --bigIqLicensePoolName ', parameters('bigIqLicensePoolName'), ' --bigIqExtraLicenseOptions \\\"$(format_args sku-keyword-1:', parameters('bigIqLicenseSkuKeyWord1'), ',unit-of-measure:', parameters('bigIqLicenseUnitOfMeasure'), ')\\\" --bigIpExtMgmtAddress ', reference(variables('mgmtPublicIPAddressId')).ipAddress, ' --bigIpExtMgmtPort via-api', '\" --signal AUTOSCALE_SCRIPT_DONE', '; if [[ $? == 0 ]]; then tmsh modify cm device-group Sync asm-sync enabled; tmsh load sys application template f5.service_discovery.tmpl; tmsh load sys application template f5.cloud_logger.v1.0.0.tmpl; bash /config/customConfig.sh; reboot_signal=\"/tmp/f5-cloud-libs-signals/REBOOT_REQUIRED\"; if [ -f $reboot_signal ]; then echo \"Reboot signaled by cloud libs, rebooting\"; rm -f $reboot_signal; reboot; else echo \"Cloud libs did not signal a reboot\"; fi; $(cp_logs); else $(cp_logs); exit 1; fi', '; if grep -i \"PUT failed\" /var/log/waagent.log -q; then echo \"Killing waagent exthandler, daemon should restart it\"; pkill -f \"python -u /usr/sbin/waagent -run-exthandlers\"; fi')]"
-                                    },
-                                    "publisher": "Microsoft.Azure.Extensions",
-                                    "settings": {
-                                        "fileUris": [
-                                            "[concat('https://cdn.f5.com/product/cloudsolutions/f5-cloud-libs/', variables('f5CloudLibsTag'), '/f5-cloud-libs.tar.gz')]",
-                                            "[concat('https://cdn.f5.com/product/cloudsolutions/f5-appsvcs-extension/', variables('f5AS3Tag'), '/dist/lts/', variables('f5AS3Build'))]",
-                                            "[concat('https://cdn.f5.com/product/cloudsolutions/iapps/common/f5-service-discovery/', variables('f5CloudIappsSdTag'), '/f5.service_discovery.tmpl')]",
-                                            "[concat('https://cdn.f5.com/product/cloudsolutions/iapps/common/f5-cloud-logger/', variables('f5CloudIappsLoggerTag'), '/f5.cloud_logger.v1.0.0.tmpl')]",
-                                            "[concat('https://cdn.f5.com/product/cloudsolutions/f5-cloud-libs-azure/', variables('f5CloudLibsAzureTag'), '/f5-cloud-libs-azure.tar.gz')]",
-                                            "[concat(variables('f5NetworksSolutionScripts'), 'asm-policy.tar.gz')]"
-                                        ]
-                                    },
-                                    "type": "CustomScript",
-                                    "typeHandlerVersion": "2.0"
-                                }
-                            }
-                        ]
-                    },
-                    "networkProfile": {
-                        "networkInterfaceConfigurations": [
-                            {
-                                "name": "nic1",
-                                "properties": {
-                                    "ipConfigurations": [
-                                        {
-                                            "name": "ipconfig1",
-                                            "properties": {
-                                                "loadBalancerBackendAddressPools": [
-                                                    {
-                                                        "id": "[concat('/subscriptions/', variables('subscriptionID'),'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('externalLoadBalancerName'), '/backendAddressPools/loadBalancerBackEnd')]"
-                                                    }
-                                                ],
-                                                "loadBalancerInboundNatPools": [
-                                                    {
-                                                        "id": "[concat('/subscriptions/', variables('subscriptionID'),'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('externalLoadBalancerName'), '/inboundNatPools/sshnatpool')]"
-                                                    },
-                                                    {
-                                                        "id": "[concat('/subscriptions/', variables('subscriptionID'),'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('externalLoadBalancerName'), '/inboundNatPools/mgmtnatpool')]"
-                                                    }
-                                                ],
-                                                "publicIpAddressConfiguration": "[if(equals(toLower(parameters('provisionPublicIP')), 'no'), json('null'), variables('publicIpAddressConfiguration'))]",
-                                                "subnet": {
-                                                    "id": "[variables('mgmtSubnetId')]"
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    "networkSecurityGroup": {
-                                        "id": "[variables('mgmtNsgID')]"
-                                    },
-                                    "primary": true
-                                }
-                            }
-                        ]
-                    },
-                    "osProfile": "[variables('osProfiles')[parameters('authenticationType')]]",
-                    "storageProfile": "[if(variables('useCustomImage'), variables('storageProfileArray').customImage, variables('storageProfileArray').platformImage)]"
-                }
-            },
-            "sku": {
-                "capacity": "[parameters('vmScaleSetMinCount')]",
-                "name": "[parameters('instanceType')]",
-                "tier": "Standard"
+                "hardwareProfile": {
+                    "vmSize": "[parameters('instanceType')]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": "[concat(take(variables('selfNicConfigArray')['0'], 3), take(variables('addtlNicConfigArray')['values0'], parameters('numberOfAdditionalNics')))]"
+                },
+                "osProfile": "[variables('osProfiles')[parameters('authenticationType')]]",
+                "storageProfile": "[if(variables('useCustomImage'), variables('storageProfileArray').customImage, variables('storageProfileArray').platformImage)]"
             },
             "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
-            "zones": "[if(variables('zonesAvailable'), createArray(1, 2, 3), json('null'))]",
-            "type": "Microsoft.Compute/virtualMachineScaleSets"
+            "zones": "[if(variables('zonesAvailable'), array(1), json('null'))]",
+            "type": "Microsoft.Compute/virtualMachines"
         },
         {
-            "apiVersion": "[variables('appInsightsApiVersion')]",
+            "apiVersion": "[variables('computeApiVersion')]",
             "dependsOn": [
-                "[variables('vmssId')]"
+                "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]",
+                "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
+                "[variables('newCustomImageName')]",
+                "addtlniccopy0",
+                "addtlniccopy1",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('mgmtNicName'), '1')]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('extNicName'), '1')]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('intNicName'), '1')]"
             ],
             "location": "[variables('location')]",
-            "name": "autoscaleconfig",
+            "name": "[concat(variables('dnsLabel'), '-', variables('instanceName'), '1')]",
+            "plan": "[if(variables('useCustomImage'), json('null'), variables('imagePlan'))]",
             "properties": {
-                "enabled": true,
-                "name": "autoscaleconfig",
-                "notifications": [
-                    {
-                        "email": {
-                            "customEmails": "[variables('customEmail')]",
-                            "sendToSubscriptionAdministrator": false,
-                            "sendToSubscriptionCoAdministrators": false
-                        },
-                        "operation": "Scale",
-                        "webhooks": []
+                "availabilitySet": "[if(not(variables('zonesAvailable')), variables('availabilitySetId'), json('null'))]",
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob]"
                     }
-                ],
-                "profiles": [
-                    {
-                        "capacity": {
-                            "default": "[parameters('vmScaleSetMinCount')]",
-                            "maximum": "[parameters('vmScaleSetMaxCount')]",
-                            "minimum": "[parameters('vmScaleSetMinCount')]"
-                        },
-                        "name": "Profile1",
-                        "rules": [
-                            {
-                                "metricTrigger": {
-                                    "metricName": "[variables('scaleMetricMap')[variables('cpuMetricName')].metricName]",
-                                    "metricNamespace": "",
-                                    "metricResourceUri": "[variables('scaleMetricMap')[variables('cpuMetricName')].metricResourceUri]",
-                                    "operator": "GreaterThan",
-                                    "statistic": "Average",
-                                    "threshold": "[variables('scaleMetricMap')[variables('cpuMetricName')].thresholdOut]",
-                                    "timeAggregation": "Average",
-                                    "timeGrain": "PT1M",
-                                    "timeWindow": "[variables('scaleOutTimeWindow')]"
-                                },
-                                "scaleAction": {
-                                    "cooldown": "PT1M",
-                                    "direction": "Increase",
-                                    "type": "ChangeCount",
-                                    "value": "1"
-                                }
-                            },
-                            {
-                                "metricTrigger": {
-                                    "metricName": "[variables('scaleMetricMap')[variables('cpuMetricName')].metricName]",
-                                    "metricNamespace": "",
-                                    "metricResourceUri": "[variables('scaleMetricMap')[variables('cpuMetricName')].metricResourceUri]",
-                                    "operator": "LessThan",
-                                    "statistic": "Average",
-                                    "threshold": "[variables('scaleMetricMap')[variables('cpuMetricName')].thresholdIn]",
-                                    "timeAggregation": "Average",
-                                    "timeGrain": "PT1M",
-                                    "timeWindow": "[variables('scaleInTimeWindow')]"
-                                },
-                                "scaleAction": {
-                                    "cooldown": "PT1M",
-                                    "direction": "Decrease",
-                                    "type": "ChangeCount",
-                                    "value": "1"
-                                }
-                            },
-                            {
-                                "metricTrigger": {
-                                    "metricName": "[variables('scaleMetricMap')[variables('throughputMetricName')].metricName]",
-                                    "metricNamespace": "",
-                                    "metricResourceUri": "[variables('scaleMetricMap')[variables('throughputMetricName')].metricResourceUri]",
-                                    "operator": "GreaterThan",
-                                    "statistic": "Average",
-                                    "threshold": "[variables('scaleMetricMap')[variables('throughputMetricName')].thresholdOut]",
-                                    "timeAggregation": "Average",
-                                    "timeGrain": "PT1M",
-                                    "timeWindow": "[variables('scaleOutTimeWindow')]"
-                                },
-                                "scaleAction": {
-                                    "cooldown": "PT1M",
-                                    "direction": "Increase",
-                                    "type": "ChangeCount",
-                                    "value": "1"
-                                }
-                            },
-                            {
-                                "metricTrigger": {
-                                    "metricName": "[variables('scaleMetricMap')[variables('throughputMetricName')].metricName]",
-                                    "metricNamespace": "",
-                                    "metricResourceUri": "[variables('scaleMetricMap')[variables('throughputMetricName')].metricResourceUri]",
-                                    "operator": "LessThan",
-                                    "statistic": "Average",
-                                    "threshold": "[variables('scaleMetricMap')[variables('throughputMetricName')].thresholdIn]",
-                                    "timeAggregation": "Average",
-                                    "timeGrain": "PT1M",
-                                    "timeWindow": "[variables('scaleInTimeWindow')]"
-                                },
-                                "scaleAction": {
-                                    "cooldown": "PT1M",
-                                    "direction": "Decrease",
-                                    "type": "ChangeCount",
-                                    "value": "1"
-                                }
-                            }
-                        ]
-                    }
-                ],
-                "targetResourceUri": "[variables('vmssId')]"
-            },
-            "type": "Microsoft.Insights/autoscaleSettings"
-        },
-        {
-            "apiVersion": "[variables('appInsightsComponentsApiVersion')]",
-            "condition": "[contains(toUpper(parameters('appInsights')), 'CREATE_NEW')]",
-            "dependsOn": [],
-            "kind": "other",
-            "location": "[variables('appInsightsLocation')]",
-            "name": "[variables('appInsightsName')]",
-            "properties": {
-                "ApplicationId": "[variables('appInsightsName')]",
-                "Application_Type": "other"
+                },
+                "hardwareProfile": {
+                    "vmSize": "[parameters('instanceType')]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": "[concat(take(variables('selfNicConfigArray')['1'], 3), take(variables('addtlNicConfigArray')['values1'], parameters('numberOfAdditionalNics')))]"
+                },
+                "osProfile": "[variables('osProfiles')[parameters('authenticationType')]]",
+                "storageProfile": "[if(variables('useCustomImage'), variables('storageProfileArray').customImage, variables('storageProfileArray').platformImage)]"
             },
             "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
-            "type": "Microsoft.Insights/components"
+            "zones": "[if(variables('zonesAvailable'), array(2), json('null'))]",
+            "type": "Microsoft.Compute/virtualMachines"
+        },
+        {
+            "apiVersion": "[variables('computeApiVersion')]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('dnsLabel'), '-', variables('instanceName'), '0')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('dnsLabel'), '-', variables('instanceName'), '0/start')]",
+            "properties": {
+                "autoUpgradeMinorVersion": "true",
+                "protectedSettings": {
+                    "commandToExecute": "[concat('function cp_logs() { cd /var/lib/waagent/custom-script/download && cp `ls -r | head -1`/std* /var/log/cloud/azure; cd /var/log/cloud/azure && cat stdout stderr > install.log; }; CLOUD_LIB_DIR=/config/cloud/azure/node_modules/@f5devcentral; mkdir -p $CLOUD_LIB_DIR && cp f5-cloud-libs*.tar.gz* /config/cloud; mkdir -p /var/config/rest/downloads && cp ', variables('f5AS3Build'), ' /var/config/rest/downloads; mkdir -p /var/log/cloud/azure; /usr/bin/install -m 400 /dev/null /config/cloud/.passwd; /usr/bin/install -m 400 /dev/null /config/cloud/.azCredentials; /usr/bin/install -b -m 755 /dev/null /config/verifyHash; /usr/bin/install -b -m 755 /dev/null /config/installCloudLibs.sh; /usr/bin/install -b -m 755 /dev/null /config/cloud/managedRoutes; IFS=', variables('singleQuote'), '%', variables('singleQuote'), '; echo -e ', variables('verifyHash'), ' > /config/verifyHash; echo -e ', variables('installCloudLibs'), ' > /config/installCloudLibs.sh; echo -e ', variables('appScript'), ' | /usr/bin/base64 -d > /config/cloud/deploy_app.sh; chmod +x /config/cloud/deploy_app.sh; echo -e ', variables('installCustomConfig'), ' >> /config/customConfig.sh; echo -e ', parameters('managedRoutes'), ' > /config/cloud/managedRoutes; unset IFS; bash /config/installCloudLibs.sh; source $CLOUD_LIB_DIR/f5-cloud-libs/scripts/util.sh; encrypt_secret ', variables('singleQuote'), '{\"clientId\": \"', parameters('clientId'), '\", \"tenantId\": \"', parameters('tenantId'), '\", \"secret\": \"', parameters('servicePrincipalSecret'), '\", \"subscriptionId\": \"', variables('subscriptionID'), '\", \"storageAccount\": \"', variables('newDataStorageAccountName'), '\", \"storageKey\": \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newDataStorageAccountName')), variables('storageApiVersion')).keys[0].value, '\", \"resourceGroupName\": \"', variables('resourceGroupName'), '\", \"uniqueLabel\": \"', variables('dnsLabel'), '\", \"location\": \"', variables('location'), '\"}', variables('singleQuote'), ' \"/config/cloud/.azCredentials\" \"\" true; encrypt_secret ', variables('singleQuote'), variables('adminPasswordOrKey'), variables('singleQuote'), ' \"/config/cloud/.passwd\" true; $CLOUD_LIB_DIR/f5-cloud-libs/scripts/createUser.sh --user svc_user --password-file /config/cloud/.passwd --password-encrypted; /usr/bin/install -m 400 /dev/null /config/cloud/.bigIqPasswd; encrypt_secret ', variables('singleQuote'), parameters('bigIqPassword'), variables('singleQuote'), ' \"/config/cloud/.bigIqPasswd\"; ', variables('allowUsageAnalytics')[parameters('allowUsageAnalytics')].hashCmd, '; /usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs/scripts/onboard.js --no-reboot --output /var/log/cloud/azure/onboard.log --signal ONBOARD_DONE --log-level info --cloud azure --install-ilx-package file:///var/config/rest/downloads/', variables('f5AS3Build'), ' --host ', variables('mgmtSubnetPrivateAddress'), ' --port ', variables('bigIpMgmtPort'), ' --ssl-port ', variables('bigIpMgmtPort'), ' -u svc_user --password-url file:///config/cloud/.passwd --password-encrypted --hostname ', concat(variables('instanceName'), '0.', variables('location'), '.cloudapp.azure.com'), ' --license-pool --big-iq-host ', parameters('bigIqAddress'), ' --big-iq-user ', parameters('bigIqUsername'), ' --big-iq-password-uri file:///config/cloud/.bigIqPasswd --big-iq-password-encrypted --license-pool-name ', parameters('bigIqLicensePoolName'), ' $(format_args sku-keyword-1:', parameters('bigIqLicenseSkuKeyWord1'), ',unit-of-measure:', parameters('bigIqLicenseUnitOfMeasure'), ') --big-ip-mgmt-address ', reference(concat(variables('mgmtPublicIPAddressId'), '0')).ipAddress, ' --ntp ', parameters('ntpServer'), ' --tz ', parameters('timeZone'), ' --modules ', parameters('bigIpModules'), ' --db tmm.maxremoteloglength:2048', variables('allowUsageAnalytics')[parameters('allowUsageAnalytics')].metricsCmd, '; /usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs/scripts/network.js --output /var/log/cloud/azure/network.log --wait-for ONBOARD_DONE --host ', variables('mgmtSubnetPrivateAddress'), ' --port ', variables('bigIpMgmtPort'), ' -u svc_user --password-url file:///config/cloud/.passwd --password-encrypted --default-gw ', concat(take(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, add(lastIndexOf(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, '.'), 1)), add(int(take(split(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, '.')[3], indexOf(split(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, '.')[3], '/'))), 1)), ' --vlan name:external,nic:1.1 --vlan name:internal,nic:1.2 ', variables('netCmd'), ' --self-ip name:self_2nic,address:', variables('extSubnetPrivateAddress'), skip(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, indexOf(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, '/')), ',vlan:external --self-ip name:self_3nic,address:', variables('intSubnetPrivateAddress'), skip(reference(variables('intSubnetRef'), variables('networkApiVersion')).addressPrefix, indexOf(reference(variables('intSubnetRef'), variables('networkApiVersion')).addressPrefix, '/')), ',vlan:internal --log-level info; echo \"/usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs-azure/scripts/failoverProvider.js\" >> /config/failover/tgactive; echo \"/usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs-azure/scripts/failoverProvider.js\" >> /config/failover/tgrefresh; tmsh modify cm device ', concat(variables('instanceName'), '0.', variables('location'), '.cloudapp.azure.com'), ' unicast-address { { ip ', variables('intSubnetPrivateAddress'), ' port 1026 } } mirror-ip ', variables('intSubnetPrivateAddress'), '; ', variables('failoverCmdArray')[parameters('bigIpVersion')], '; /usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs/scripts/cluster.js --output /var/log/cloud/azure/cluster.log --log-level info --host ', variables('mgmtSubnetPrivateAddress'), ' --port ', variables('bigIpMgmtPort'), ' -u svc_user --password-url file:///config/cloud/.passwd --password-encrypted --config-sync-ip ', variables('intSubnetPrivateAddress'), ' --create-group --device-group Sync --sync-type sync-failover --device ', concat(variables('instanceName'), '0.', variables('location'), '.cloudapp.azure.com'), ' --network-failover --auto-sync --save-on-auto-sync; bash /config/cloud/deploy_app.sh ', variables('commandArgs'), '; if [[ $? == 0 ]]; then tmsh load sys application template f5.service_discovery.tmpl; tmsh load sys application template f5.cloud_logger.v1.0.0.tmpl; base=', variables('extSubnetPrivateAddressPrefix'), variables('extSubnetPrivateAddressSuffixInt'), '; f3=$(echo $base | cut -d. -f1-3); last=$(echo $base | cut -d. -f4); for i in $(seq 1 ', variables('numberOfExternalIps'), '); do addr=${f3}.${last}; last=$((last+1)); tmsh create ltm virtual-address $addr address $addr; done; ', variables('routeCmd'), '; echo -e ', variables('routeCmd'), ' >> /config/startup; rm -f /config/cloud/.bigIqPasswd; $(nohup bash /config/failover/tgactive &>/dev/null &); bash /config/customConfig.sh; $(cp_logs); else $(cp_logs); exit 1; fi', '; if grep -i \"PUT failed\" /var/log/waagent.log -q; then echo \"Killing waagent exthandler, daemon should restart it\"; pkill -f \"python -u /usr/sbin/waagent -run-exthandlers\"; fi')]"
+                },
+                "publisher": "Microsoft.Azure.Extensions",
+                "settings": {
+                    "fileUris": [
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/f5-cloud-libs/', variables('f5CloudLibsTag'), '/f5-cloud-libs.tar.gz')]",
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/f5-appsvcs-extension/', variables('f5AS3Tag'), '/dist/lts/', variables('f5AS3Build'))]",
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/iapps/common/f5-service-discovery/', variables('f5CloudIappsSdTag'), '/f5.service_discovery.tmpl')]",
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/iapps/common/f5-cloud-logger/', variables('f5CloudIappsLoggerTag'), '/f5.cloud_logger.v1.0.0.tmpl')]",
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/f5-cloud-libs-azure/', variables('f5CloudLibsAzureTag'), '/f5-cloud-libs-azure.tar.gz')]"
+                    ]
+                },
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0"
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Compute/virtualMachines/extensions"
+        },
+        {
+            "apiVersion": "[variables('computeApiVersion')]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('dnsLabel'), '-', variables('instanceName'), '1')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('dnsLabel'), '-', variables('instanceName'), '1/start')]",
+            "properties": {
+                "autoUpgradeMinorVersion": "true",
+                "protectedSettings": {
+                    "commandToExecute": "[concat('function cp_logs() { cd /var/lib/waagent/custom-script/download && cp `ls -r | head -1`/std* /var/log/cloud/azure; cd /var/log/cloud/azure && cat stdout stderr > install.log; }; CLOUD_LIB_DIR=/config/cloud/azure/node_modules/@f5devcentral; mkdir -p $CLOUD_LIB_DIR && cp f5-cloud-libs*.tar.gz* /config/cloud; mkdir -p /var/config/rest/downloads && cp ', variables('f5AS3Build'), ' /var/config/rest/downloads; mkdir -p /var/log/cloud/azure; /usr/bin/install -m 400 /dev/null /config/cloud/.passwd; /usr/bin/install -m 400 /dev/null /config/cloud/.azCredentials; /usr/bin/install -b -m 755 /dev/null /config/verifyHash; /usr/bin/install -b -m 755 /dev/null /config/installCloudLibs.sh; /usr/bin/install -b -m 755 /dev/null /config/cloud/managedRoutes; IFS=', variables('singleQuote'), '%', variables('singleQuote'), '; echo -e ', variables('verifyHash'), ' > /config/verifyHash; echo -e ', variables('installCloudLibs'), ' > /config/installCloudLibs.sh; echo -e ', variables('appScript'), ' | /usr/bin/base64 -d > /config/cloud/deploy_app.sh; chmod +x /config/cloud/deploy_app.sh; echo -e ', variables('installCustomConfig'), ' >> /config/customConfig.sh; echo -e ', parameters('managedRoutes'), ' > /config/cloud/managedRoutes; unset IFS; bash /config/installCloudLibs.sh; source $CLOUD_LIB_DIR/f5-cloud-libs/scripts/util.sh; encrypt_secret ', variables('singleQuote'), '{\"clientId\": \"', parameters('clientId'), '\", \"tenantId\": \"', parameters('tenantId'), '\", \"secret\": \"', parameters('servicePrincipalSecret'), '\", \"subscriptionId\": \"', variables('subscriptionID'), '\", \"storageAccount\": \"', variables('newDataStorageAccountName'), '\", \"storageKey\": \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newDataStorageAccountName')), variables('storageApiVersion')).keys[0].value, '\", \"resourceGroupName\": \"', variables('resourceGroupName'), '\", \"uniqueLabel\": \"', variables('dnsLabel'), '\", \"location\": \"', variables('location'), '\"}', variables('singleQuote'), ' \"/config/cloud/.azCredentials\" \"\" true; encrypt_secret ', variables('singleQuote'), variables('adminPasswordOrKey'), variables('singleQuote'), ' \"/config/cloud/.passwd\" true; $CLOUD_LIB_DIR/f5-cloud-libs/scripts/createUser.sh --user svc_user --password-file /config/cloud/.passwd --password-encrypted; /usr/bin/install -m 400 /dev/null /config/cloud/.bigIqPasswd; encrypt_secret ', variables('singleQuote'), parameters('bigIqPassword'), variables('singleQuote'), ' \"/config/cloud/.bigIqPasswd\"; ', variables('allowUsageAnalytics')[parameters('allowUsageAnalytics')].hashCmd, '; /usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs/scripts/onboard.js --no-reboot --output /var/log/cloud/azure/onboard.log --signal ONBOARD_DONE --log-level info --cloud azure --install-ilx-package file:///var/config/rest/downloads/', variables('f5AS3Build'), ' --host ', variables('mgmtSubnetPrivateAddress1'), ' --port ', variables('bigIpMgmtPort'), ' --ssl-port ', variables('bigIpMgmtPort'), ' -u svc_user --password-url file:///config/cloud/.passwd --password-encrypted --hostname ', concat(variables('instanceName'), '1.', variables('location'), '.cloudapp.azure.com'), ' --license-pool --big-iq-host ', parameters('bigIqAddress'), ' --big-iq-user ', parameters('bigIqUsername'), ' --big-iq-password-uri file:///config/cloud/.bigIqPasswd --big-iq-password-encrypted --license-pool-name ', parameters('bigIqLicensePoolName'), ' $(format_args sku-keyword-1:', parameters('bigIqLicenseSkuKeyWord1'), ',unit-of-measure:', parameters('bigIqLicenseUnitOfMeasure'), ') --big-ip-mgmt-address ', reference(concat(variables('mgmtPublicIPAddressId'), '1')).ipAddress, ' --ntp ', parameters('ntpServer'), ' --tz ', parameters('timeZone'), ' --modules ', parameters('bigIpModules'), ' --db tmm.maxremoteloglength:2048', variables('allowUsageAnalytics')[parameters('allowUsageAnalytics')].metricsCmd, '; /usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs/scripts/network.js --output /var/log/cloud/azure/network.log --wait-for ONBOARD_DONE --host ', variables('mgmtSubnetPrivateAddress1'), ' --port ', variables('bigIpMgmtPort'), ' -u svc_user --password-url file:///config/cloud/.passwd --password-encrypted --default-gw ', concat(take(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, add(lastIndexOf(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, '.'), 1)), add(int(take(split(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, '.')[3], indexOf(split(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, '.')[3], '/'))), 1)), ' --vlan name:external,nic:1.1 --vlan name:internal,nic:1.2 ', variables('netCmd'), ' --self-ip name:self_2nic,address:', variables('extSubnetPrivateAddress1'), skip(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, indexOf(reference(variables('extSubnetRef'), variables('networkApiVersion')).addressPrefix, '/')), ',vlan:external --self-ip name:self_3nic,address:', variables('intSubnetPrivateAddress1'), skip(reference(variables('intSubnetRef'), variables('networkApiVersion')).addressPrefix, indexOf(reference(variables('intSubnetRef'), variables('networkApiVersion')).addressPrefix, '/')), ',vlan:internal --log-level info; echo \"/usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs-azure/scripts/failoverProvider.js\" >> /config/failover/tgactive; echo \"/usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs-azure/scripts/failoverProvider.js\" >> /config/failover/tgrefresh; tmsh modify cm device ', concat(variables('instanceName'), '1.', variables('location'), '.cloudapp.azure.com'), ' unicast-address { { ip ', variables('intSubnetPrivateAddress1'), ' port 1026 } } mirror-ip ', variables('intSubnetPrivateAddress1'), '; ', variables('failoverCmdArray')[parameters('bigIpVersion')], '; /usr/bin/f5-rest-node $CLOUD_LIB_DIR/f5-cloud-libs/scripts/cluster.js --output /var/log/cloud/azure/cluster.log --log-level info --host ', variables('mgmtSubnetPrivateAddress1'), ' --port ', variables('bigIpMgmtPort'), ' -u svc_user --password-url file:///config/cloud/.passwd --password-encrypted --config-sync-ip ', variables('intSubnetPrivateAddress1'), ' --join-group --device-group Sync --sync --remote-host ', variables('mgmtSubnetPrivateAddress'), ' --remote-user svc_user --remote-password-url file:///config/cloud/.passwd', '; if [[ $? == 0 ]]; then tmsh load sys application template f5.service_discovery.tmpl; tmsh load sys application template f5.cloud_logger.v1.0.0.tmpl; base=', variables('extSubnetPrivateAddressPrefix'), variables('extSubnetPrivateAddressSuffixInt'), '; f3=$(echo $base | cut -d. -f1-3); last=$(echo $base | cut -d. -f4); for i in $(seq 1 ', variables('numberOfExternalIps'), '); do addr=${f3}.${last}; last=$((last+1)); tmsh create ltm virtual-address $addr address $addr; done; ', variables('routeCmd'), '; echo -e ', variables('routeCmd'), ' >> /config/startup; rm -f /config/cloud/.bigIqPasswd; $(nohup bash /config/failover/tgactive &>/dev/null &); bash /config/customConfig.sh; $(cp_logs); else $(cp_logs); exit 1; fi', '; if grep -i \"PUT failed\" /var/log/waagent.log -q; then echo \"Killing waagent exthandler, daemon should restart it\"; pkill -f \"python -u /usr/sbin/waagent -run-exthandlers\"; fi')]"
+                },
+                "publisher": "Microsoft.Azure.Extensions",
+                "settings": {
+                    "fileUris": [
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/f5-cloud-libs/', variables('f5CloudLibsTag'), '/f5-cloud-libs.tar.gz')]",
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/f5-appsvcs-extension/', variables('f5AS3Tag'), '/dist/lts/', variables('f5AS3Build'))]",
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/iapps/common/f5-service-discovery/', variables('f5CloudIappsSdTag'), '/f5.service_discovery.tmpl')]",
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/iapps/common/f5-cloud-logger/', variables('f5CloudIappsLoggerTag'), '/f5.cloud_logger.v1.0.0.tmpl')]",
+                        "[concat('https://cdn.f5.com/product/cloudsolutions/f5-cloud-libs-azure/', variables('f5CloudLibsAzureTag'), '/f5-cloud-libs-azure.tar.gz')]"
+                    ]
+                },
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0"
+            },
+            "tags": "[if(empty(variables('tagValues')), json('null'), variables('tagValues'))]",
+            "type": "Microsoft.Compute/virtualMachines/extensions"
         }
     ],
     "outputs": {
         "GUI-URL": {
             "type": "string",
-            "value": "[concat('https://',reference(variables('mgmtPublicIPAddressId')).dnsSettings.fqdn,':50101', ' - 50200')]"
+            "value": "[if(equals(parameters('provisionPublicIP'),'No'), concat('https://',reference(concat(variables('mgmtNicId'), '0')).ipConfigurations[0].properties.privateIPAddress, ':', variables('bigIpMgmtPort')), concat('https://',reference(concat(variables('mgmtPublicIPAddressId'), '0')).dnsSettings.fqdn, ':', variables('bigIpMgmtPort')))]"
         },
         "SSH-URL": {
             "type": "string",
-            "value": "[concat(reference(variables('mgmtPublicIPAddressId')).dnsSettings.fqdn,' ',50001, ' - 50100')]"
+            "value": "[if(equals(parameters('provisionPublicIP'),'No'), concat(reference(concat(variables('mgmtNicId'), '0')).ipConfigurations[0].properties.privateIPAddress,' ',22), concat('https://',reference(concat(variables('mgmtPublicIPAddressId'), '0')).dnsSettings.fqdn, ':', variables('bigIpMgmtPort')))]"
         }
     }
 }
