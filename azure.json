@@ -597,7 +597,8 @@
         "southcentralus": "[equals(variables('location'), string('southcentralus'))]",
         "southafricanorth": "[equals(variables('location'), string('southafricanorth'))]",
         "australiaeast": "[equals(variables('location'), string('australiaeast'))]",
-        "zonesAvailable": "[and(contains(variables('zoneMappings'), concat('\"', variables('location'), '\"')), not(variables('southcentralus')), not(variables('southafricanorth')), not(variables('australiaeast')))]",
+        "canadacentral": "[equals(variables('location'), string('canadacentral'))]",
+        "zonesAvailable": "[and(contains(variables('zoneMappings'), concat('\"', variables('location'), '\"')), not(variables('southcentralus')),not(variables('canadacentral')), not(variables('southafricanorth')), not(variables('australiaeast')))]",
         "availabilitySetId": {
             "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
         },
